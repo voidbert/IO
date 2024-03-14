@@ -41,14 +41,13 @@
 
 \begin{abstract}
     Este trabalho prático de Investigação Operacional tem como objetivo a resolução de um problema
-    de empacotamento a uma dimensão utilizando o modelo de "um-corte", de Dyckhoff. \cite{dyckhoff}
+    de empacotamento a uma dimensão utilizando o modelo de um-corte, de Dyckhoff. \cite{dyckhoff}
     Em detalhe, procura-se a formulação do problema, a sua modelação, a sua resolução, e a validação
-    do modelo construído.
-
-    % TODO - adicionar que fizemos meta programação
+    do modelo construído. Para tornar o processo de modelação mais rápido e menos propício a erros,
+    o nosso grupo implementou conceitos de metaprogramação ao escrever um \emph{script} Python que
+    automaticamente gera o código LP do modelo.
 \end{abstract}
 
-\setcounter{section}{-1}
 \section{Dados do problema}
 
 Como exigido pelo enunciado, os dados do problema a resolver são determinados em função do número de
@@ -124,21 +123,21 @@ O nosso \emph{script} para a implementação deste modelo encontra-se em anexo (
     \item Calcular o conjunto de resíduos ($R$), sucessivamente executando todos os cortes possíveis
         com base nas capacidades dos contentores e nos comprimentos dos itens.
 
-    \item Gerar a função objetivo de acordo com o artigo, em particular, a variação que assume que
-        cortes não utilizados são desperdício. \cite{dyckhoff}. É necessária a geração de variáveis
-        e restrições auxiliares para se calcular o máximo entre $0$ e uma função linear.
+    \item Gerar a função objetivo de acordo com o artigo, em particular, a variação que considera
+        desperdício as partes cortadas mas não utilizadas. (ver secção 3 em \cite{dyckhoff}). É
+        necessária a geração de variáveis e restrições auxiliares para se calcular o máximo entre
+        $0$ e uma função linear.
 
     \item Gerar as restrições de equilíbrio, calculando os conjuntos e os sumatórios descritos no
-        artigo. \cite{dyckhoff}
+        artigo (equação (7) em \cite{dyckhoff}).
 
     \item Gerar restrições relativas ao número máximo de contentores de cada capacidade: o número
-        de contentores de uma dada capacidade que foram usados é dado pela sua parcela
-        correspondente no sumatório exterior da função objetivo. Estes valores já são representados
-        pelas variáveis auxiliares do segundo ponto.
+        de contentores usados de uma dada capacidade é dado pela sua parcela correspondente no
+        sumatório exterior da função objetivo (ver equação (8) em \cite{dyckhoff}). Estes valores já
+        são representados pelas variáveis auxiliares do segundo ponto.
+        % TODO - Mudar script para usar estas variáveis auxiliares, se o professor aprovar isto
 
     \item Registar que todas as variáveis de corte são inteiras.
-
-    % TODO - as fórmulas da descrição do modelo devem ser numeradas, para referenciar aqui
 \end{enumerate}
 
 \subsection{Modelo dos padrões de corte}
@@ -147,9 +146,9 @@ Inicialmente, o nosso grupo resolveu o problema de empacotamento proposto utiliz
 padrões de corte, de modo a poder verificar a solução do modelo de um-corte quando este fosse
 implementado. Também desenvolvemos um \emph{script} que gera o modelo de Gilmore e Gomory
 automaticamente, cujo funcionamento passo a passo é descrito de abaixo, e cujo código se encontra em
-anexo (ver \ref{code:cutting-patterns}).
-
-% TODO - citar e dizer que não descrevemos os seu funcionamento aqui
+anexo (ver \ref{code:cutting-patterns}). Como o foco deste trabalho não é este modelo, não é
+descrito em detalhe, pelo que é recomendada a leitura do artigo que o definiu.
+\cite{gilmore-and-gomory}
 
 \begin{enumerate}[\hspace{1cm} \bfseries 1.]
     \item Calcular os padrões de corte para cada contentor dado o comprimento de cada item a
@@ -163,15 +162,20 @@ anexo (ver \ref{code:cutting-patterns}).
         coeficientes são as capacidades dos contentores a que estão associadas, dado que se pretende
         minimizar a soma das capacidades dos contentores utilizados.
 
-    \item Calcular quanto cada padrão de corte gera de cada item, e usar essa informação para gerar
-        restrições que obrigam que pelo menos um dado número de cada item seja empacotado.
+    \item Calcular quanto cada padrão de corte permite empacotar de cada item, e usar essa
+        informação para gerar restrições que obrigam que pelo menos um dado número de cada item seja
+        empacotado.
 
     \item Gerar restrições relativas ao número máximo de contentores de cada capacidade: a soma de
         todos os padrões de corte que envolvem contentores de uma capacidade não pode ser superior à
-        disponibilidade desse contentor.
+        disponibilidade desses contentores.
 
     \item Registar que todas as variáveis correspondentes a padrões de corte são inteiras.
 \end{enumerate}
+
+\section{Conclusão}
+
+% TODO - conclusão
 
 % Isto é uma grande gambiarra, mas funciona para pôr a bibliografia como uma secção.
 \section{Bibliografia}
@@ -182,6 +186,11 @@ anexo (ver \ref{code:cutting-patterns}).
     H. Dyckhoff, "A New Linear Programming Approach to the Cutting Stock Problem",
     \emph{Operations Research}, vol. 29, no. 6, Dec., pp. 1092-1104, 1981.
     \href{https://doi.org/10.1287/opre.29.6.1092}{doi: 10.1287/opre.29.6.1092}
+
+    \bibitem{gilmore-and-gomory}
+    P. Gilmore, and R. Gomory, "A Linear Programming Approach to the Cutting Stock Problem",
+    \emph{Operations Research}, vol. 9, no. 6, Dec., pp. 849-859, 1961.
+    \href{https://doi.org/10.1287/opre.9.6.849}{doi: 10.1287/opre.9.6.849}
 \end{thebibliography}
 
 \section{Anexos}
