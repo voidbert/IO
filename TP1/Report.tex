@@ -100,7 +100,46 @@ das outras capacidades (tabela \ref{containers-data}). Pretendem-se empacotar 13
 comprimento 2, 9 itens de comprimento 4, e 5 itens de comprimento 5 (tabela \ref{items-data}). O
 objetivo é minimizar a soma das capacidade dos contentores utilizados.
 
-% TODO - Descrever modelo de Dyckhoff
+\section{Modelo de Dyckhoff}
+
+O modelo "um-corte", de Dyckhoff \cite{dyckhoff}, é caracterizado pelo uso dinâmico de um padrão de
+corte de estrutura simples, chamado "padrão-um-corte", que descreve o comprimento \textit{l} pelo
+qual uma peça, de comprimento \textit{k}, é dividida ([k; l]), sendo \textit{l} inferior a
+\textit{k} e pertencente ao conjunto de peças objetivo descrito no parágrafo seguinte.
+
+Este modelo assenta na ideia recursiva por detrás da aplicação subsequente de um número ilimitado de
+padrões "um-corte". O padrão vai ser primeiramente aplicado a peças padrão, isto é, peças de um
+tamanho \textit{k} que estão à disposição do modelo sem ter sido realizado qualquer corte prévio.
+Num processo de corte [k; l] duas peças vão ser geradas, uma de comprimento \textit{l}, e outra de
+comprimento \textit{k-l}. O processo de corte pode ser, então, aplicado a ambas as peças geradas
+através do processo anterior, além das restantes peças padrão, até que seja formado um conjunto
+final de peças objetivo, que atende ao pedido do problema. Devem ser excluídos padrões idênticos,
+isto é, padrões em que um corte [k; l] e um corte [k; k-l] geram ambos resíduos idênticos.
+
+Então, cada variável de decisão \textit{$y_{k,l}$} deverá representar a quantidade de peças, cada
+uma de um comprimento \textit{k}, pertencentes ao conjunto de peças padrão ou ao conjunto de peças
+resíduos, divididas por um qualquer comprimento \textit{l}, pertencente ao conjunto de peças
+objetivo e inferior a \textit{k}.
+
+Assumindo a exclusão do caso trivial em que um tamanho \textit{k}, de um conjunto de peças padrão,
+corresponde, sem qualquer corte, ao comprimento \textit{l} de um conjunto de peças objetivo, é
+facilmente obtido o conjunto de todas as peças resíduo possíveis, originadas a partir do
+"padrão-um-corte", e que não têm menor comprimento do que a menor peça objetivo. As peças resíduo
+que não se encaixam nesta segunda caracterização pertencem ao conjunto de peças excesso.
+
+A partir das variáveis de decisão, as restrições do modelo vão se formular da seguinte forma: o
+número de novas peças de tamanho \textit{l} geradas via um corte, seja ele [k; l] ou [k+l; k]
+(\textit{$y_{k,l}$} ou \textit{$y_{k+l,k}$}), em que \textit{k} e \textit{k+l}, respetivamente,
+pertencem ao conjunto de peças padrão ou resíduo, deverá ser superior, ou igual, à quantidade de
+peças de tamanho \textit{l} utilizadas em processos de corte subsequentes, mais a demanda que é
+necessária atender de peças objetivo de tamanho \textit{l}. Não é necessário formular nenhuma
+restrição para os excessos.
+
+Se o que procuramos é minimizar o uso de peças padrão, basta, então, minimizar a soma da quantidade
+de todas as peças padrão, cada uma de um qualquer comprimento \textit{l}, cortadas por um
+comprimento \textit{k} para produzir peças objetivo/resíduo menores. É importante referir que devem
+não devem ser contabilizadas peças resíduo, isto é, que foram obtidas a partir de uma peça padrão de
+maior comprimento \textit{k+l}.
 
 \section{Metaprogramação}
 
