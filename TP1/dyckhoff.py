@@ -172,5 +172,5 @@ if __name__ == '__main__':
     # Our problem's data
     print(output_model({11: None, 10: 5, 7: 5}, {2: 13, 4: 9, 5: 5}), end='')
 
-    # Example from Dyckhoff's onde-cut model:
+    # Example from Dyckhoff's one-cut model:
     # print(output_model({5: None, 6: None, 9: None}, {2: 20, 3: 10, 4: 20}), end='')
