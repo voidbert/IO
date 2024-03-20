@@ -187,6 +187,79 @@ constroem estes modelos sem qualquer intervenção humana, tornando a sua aplica
 problemas maiores e em contextos em que os dados estão em constante mudança, evitando o desperdício
 de horas humanas em cálculos que facilmente podem ser executados por um computador.
 
+
+\subsection{Modelo dos padrões de corte}
+
+Inicialmente, o nosso grupo resolveu o problema de empacotamento proposto utilizando o modelo dos
+padrões de corte, de modo a poder verificar a solução do modelo do um-corte quando este fosse
+implementado. Também desenvolvemos um \emph{script} que gera este modelo automaticamente, cujo
+funcionamento é descrito brevemente:
+
+\begin{enumerate}[\hspace{1cm} \bfseries 1.]
+	\item % TODO - descrição do modelo dos padrões de corte
+\end{enumerate}
+
+\section*{Modelo Matemático para o Problema de Corte - Modelo II}
+
+\subsection*{Conjuntos:}
+\begin{itemize}
+    \item $S$: Conjunto de todos os comprimentos padrão.
+        $$S=\{2,4,5\}$$
+    \item $D$: Conjunto de todos os comprimentos do pedido.
+        $$D=\{7,10,11\}$$
+    \item $R$: Conjunto de todos os comprimentos residuais relevantes$^{(1)}$.
+        $$R=\{2,3,4,5,6,7,8,9\}$$
+
+\end{itemize}
+
+\subsection*{Parâmetros:}
+\begin{itemize}
+    \item $N_l$: Número de peças pedidas com o comprimento $l$ ($N_l = 0$ para $l \notin D$).
+    \item $c_l$: O custo de uma peça com comprimento padrão $l$ (para $l \in S$).
+\end{itemize}
+
+\subsection*{Variável de Decisão:}
+
+\begin{itemize}
+    \item $Y_{k,l}$: O número de peças do comprimento $k \in{S \cup R}$, divididas por um qualquer comprimento \textit{l}, pertencente ao conjunto de peças objetivo e inferior a \textit{k}.
+
+\end{itemize}
+
+\subsection*{Modelo:}
+
+O objetivo é minimizar os custos totais associados ao consumo líquido de comprimentos padrão. Portanto, o objetivo pode ser representado como:
+
+\[
+\text{Minimize} \quad Z = \sum_{l \in S} c_l * max\{0, \sum_{k \in C_l} y_{l,k} - \sum_{k \in B_l} y_{k+l,k}\}
+\]
+
+\subsection*{Restrições:}
+
+$Y_{k,l} \geq 0$ onde $k \in S \cup R, l \in D, l < k$
+
+\[
+\sum_{k \in A_l} (A_l y_{k,1} + B_l y_{k+1,k}) \geq \sum_{k \in C_l} (C_l y_{l,k} + N_l) \quad \text{para todo } \ l \in (D \cup R) \setminus S
+\]
+Onde:
+\begin{itemize}
+    \item $A_l$ = \{ $k \in (S \cup R)$ | $k > l$ \}
+    \item $B_l$ = \{ $k \in D | k+1 \in  (S \cup R)$ \} 
+    \item $C_l$ = \{ $k \in D |  k < l$ \}
+\end{itemize}
+
+
+\subsubsection*{Observações:}
+\begin{itemize}
+    \item As variáveis de decisão $y_{k,l}$ devem ser não negativas para todos os $k \in S \cup R$ e $l \in D$, ou seja, $y_{k,l} \geq 0$ para todos os $k$ e $l$.
+    \item As variáveis de decisão devem ser inteiras, uma vez que representam o número de peças.
+
+\end{itemize}
+
+
+
+(1) conjunto de todos os comprimentos residuais $l \in \mathbb{N}$ que não sejam menores que o menor comprimento de demanda $d_{\text{min}} \in D$ e que podem ser produzidos por um corte com um dos comprimentos padrão e de ordem $S$ e $D$ sendo fornecidos.
+
+
 % Isto é uma grande gambiarra, mas funciona para pôr a bibliografia como uma secção.
 \section{Bibliografia}
 \def\refname{}
