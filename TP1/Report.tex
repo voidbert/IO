@@ -43,7 +43,7 @@
     Em detalhe, procura-se a formulação do problema, a sua modelação, a sua resolução, e a validação
     do modelo construído.
 
-	% TODO - adicionar que fizemos meta programação
+    % TODO - adicionar que fizemos meta programação
 \end{abstract}
 
 \setcounter{section}{-1}
@@ -64,7 +64,7 @@ aluno José Lopes, e dá origem aos seguintes dados:
         \end{tabular}
     \end{center}
     \caption{Número de contentores de cada comprimento disponíveis.}
-	\label{containers-data}
+    \label{containers-data}
 \end{table}
 
 \begin{table}[H]
@@ -80,7 +80,7 @@ aluno José Lopes, e dá origem aos seguintes dados:
         \end{tabular}
     \end{center}
     \caption{Número de itens de cada comprimento para empacotar.}
-	\label{items-data}
+    \label{items-data}
 \end{table}
 
 A soma dos comprimentos dos itens a empacotar é dada por:
@@ -112,9 +112,9 @@ sempre iguais aos comprimentos dos itens. Os resíduos provenientes do corte $[k
 ser divididos em partes menores, e assim sucessivamente.
 
 São denominados resíduos todos os comprimentos que não são inferiores ao mais curto dos itens, e
-que podem ser obtidos através do "padrão-um-corte"{} referido no paragrafo anterior. Da perspetiva
-do modelo de Dyckhoff, dois resíduos do mesmo comprimento são equivalentes, sejam eles capacidades
-de contentores ou resultados de "um-cortes"{} anteriores.
+que podem ser obtidos através de "um-cortes"{} sucessivos a partir das capacidades dos contentores e
+dos comprimentos dos itens. Da perspetiva do modelo de Dyckhoff, dois resíduos do mesmo comprimento
+são equivalentes, sejam eles capacidades de contentores ou resultados de "um-cortes"{} anteriores.
 
 Neste modelo, cada variável de decisão $y_{k, l}$ corresponde ao número de comprimentos $k$
 divididos de acordo com o "um-corte"{} $[k; l]$. Com base numa solução de um problema por este
@@ -155,14 +155,14 @@ poder haver várias interpretações possíveis para o mesmo conjunto de valores
         \end{tabular}
     \end{tabular}
 
-    \caption{Duas possíveis interpretações para o mesmo conjunto de variáveis de decisão,
+    \caption{Duas possíveis interpretações para o mesmo conjunto de valores de variáveis de decisão:
              $y_{6,2}=1$, $y_{4,2}=1$ e $y_{4,3}=1$.}
 \end{figure}
 \egroup
 
 A partir das variáveis de decisão podemos construír o único tipo de restrição que existe no modelo
 original de Dyckhoff, denomidada de equilíbrio. As restrições deste tipo têm como objetivo assegurar
-2 aspetos importantes do modelo. Primeiramente, é exigido que, no fim da aplicação dos
+dois aspetos importantes do modelo. Primeiramente, é exigido que, no fim da aplicação dos
 "um-cortes"{}, se tenham produzido espaços suficientes para empacotar todos os itens dentro dos
 contentores, tendo cada item um espaço reservado de comprimento igual a si mesmo. Além disso, para
 resíduos que não sejam capacidades de contentores, não podem ser cortados mais comprimentos do que
@@ -179,7 +179,7 @@ executados que consomem o seu comprimento, e o número de "um-cortes"{} que o pr
 
 \subsection{Extensões ao modelo de Dyckhoff}
 
-Existem variáveis de decisão que têm o mesmo significado físico ($y_{k, l}$ e $y_{k, k - l}$) como
+Existem variáveis de decisão que têm o mesmo significado físico ($y_{k, l}$ e $y_{k, k - l}$), como
 por exemplo $y_{10,3}$ e $y_{10,7}$. Enquanto que o modelo original não descarta nenhuma variável,
 descartar uma das anteriores é possível, e foi como prosseguimos neste trabalho.
 
@@ -219,7 +219,7 @@ implementado. Também desenvolvemos um \emph{script} que gera este modelo automa
 funcionamento é descrito brevemente:
 
 \begin{enumerate}[\hspace{1cm} \bfseries 1.]
-	\item % TODO - descrição do modelo dos padrões de corte
+    \item % TODO - descrição do modelo dos padrões de corte
 \end{enumerate}
 
 % Isto é uma grande gambiarra, mas funciona para pôr a bibliografia como uma secção.
