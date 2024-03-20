@@ -1,6 +1,7 @@
 \documentclass[12pt, a4paper, titlepage]{article}
 
 \usepackage{amsmath}
+\usepackage{array}
 \usepackage[portuguese]{babel}
 \usepackage{cite}
 \usepackage{enumerate}
@@ -100,46 +101,101 @@ das outras capacidades (tabela \ref{containers-data}). Pretendem-se empacotar 13
 comprimento 2, 9 itens de comprimento 4, e 5 itens de comprimento 5 (tabela \ref{items-data}). O
 objetivo é minimizar a soma das capacidade dos contentores utilizados.
 
-\section{Modelo de Dyckhoff}
+\subsection{Modelo de Dyckhoff}
 
-O modelo "um-corte", de Dyckhoff \cite{dyckhoff}, é caracterizado pelo uso dinâmico de um padrão de
-corte de estrutura simples, chamado "padrão-um-corte", que descreve o comprimento \textit{l} pelo
-qual uma peça, de comprimento \textit{k}, é dividida ([k; l]), sendo \textit{l} inferior a
-\textit{k} e pertencente ao conjunto de peças objetivo descrito no parágrafo seguinte.
+O modelo de "um-corte"{}, de Dyckhoff \cite{dyckhoff}, assenta na ideia do "padrão-um-corte", uma
+divisão de um comprimento $k$ em dois menores, $l$ e $k - l$, representada pelo tuplo $[k; l]$.
+Note-se que nesta secção adaptaremos o vocabulário do modelo, referente a um problema de
+\emph{cutting stock}, para o nosso problema de \emph{bin packing}. Estes cortes são aplicados
+recursivamente, começando com valores de $k$ iguais às capacidades dos contentores, e valores de $l$
+sempre iguais aos comprimentos dos itens. Os resíduos provenientes do corte $[k; l]$ podem depois
+ser divididos em partes menores, e assim sucessivamente.
 
-Este modelo assenta na ideia recursiva por detrás da aplicação subsequente de um número ilimitado de
-padrões "um-corte". O padrão vai ser primeiramente aplicado a peças padrão, isto é, peças de um
-tamanho \textit{k} que estão à disposição do modelo sem ter sido realizado qualquer corte prévio.
-Num processo de corte [k; l] duas peças vão ser geradas, uma de comprimento \textit{l}, e outra de
-comprimento \textit{k-l}. O processo de corte pode ser, então, aplicado a ambas as peças geradas
-através do processo anterior, além das restantes peças padrão, até que seja formado um conjunto
-final de peças objetivo, que atende ao pedido do problema. Devem ser excluídos padrões idênticos,
-isto é, padrões em que um corte [k; l] e um corte [k; k-l] geram ambos resíduos idênticos.
+São denominados resíduos todos os comprimentos que não são inferiores ao mais curto dos itens, e
+que podem ser obtidos através do "padrão-um-corte"{} referido no paragrafo anterior. Da perspetiva
+do modelo de Dyckhoff, dois resíduos do mesmo comprimento são equivalentes, sejam eles capacidades
+de contentores ou resultados de "um-cortes"{} anteriores.
 
-Então, cada variável de decisão \textit{$y_{k,l}$} deverá representar a quantidade de peças, cada
-uma de um comprimento \textit{k}, pertencentes ao conjunto de peças padrão ou ao conjunto de peças
-resíduos, divididas por um qualquer comprimento \textit{l}, pertencente ao conjunto de peças
-objetivo e inferior a \textit{k}.
+Neste modelo, cada variável de decisão $y_{k, l}$ corresponde ao número de comprimentos $k$
+divididos de acordo com o "um-corte"{} $[k; l]$. Com base numa solução de um problema por este
+modelo, é possível associar os "um-cortes"{} à distribuição dos itens pelos contentores, apesar de
+poder haver várias interpretações possíveis para o mesmo conjunto de valores das variáveis.
 
-Assumindo a exclusão do caso trivial em que um tamanho \textit{k}, de um conjunto de peças padrão,
-corresponde, sem qualquer corte, ao comprimento \textit{l} de um conjunto de peças objetivo, é
-facilmente obtido o conjunto de todas as peças resíduo possíveis, originadas a partir do
-"padrão-um-corte", e que não têm menor comprimento do que a menor peça objetivo. As peças resíduo
-que não se encaixam nesta segunda caracterização pertencem ao conjunto de peças excesso.
+\bgroup
+\renewcommand{\arraystretch}{0}
 
-A partir das variáveis de decisão, as restrições do modelo vão se formular da seguinte forma: o
-número de novas peças de tamanho \textit{l} geradas via um corte, seja ele [k; l] ou [k+l; k]
-(\textit{$y_{k,l}$} ou \textit{$y_{k+l,k}$}), em que \textit{k} e \textit{k+l}, respetivamente,
-pertencem ao conjunto de peças padrão ou resíduo, deverá ser superior, ou igual, à quantidade de
-peças de tamanho \textit{l} utilizadas em processos de corte subsequentes, mais a demanda que é
-necessária atender de peças objetivo de tamanho \textit{l}. Não é necessário formular nenhuma
-restrição para os excessos.
+\begin{figure}[H]
+    \centering
 
-Se o que procuramos é minimizar o uso de peças padrão, basta, então, minimizar a soma da quantidade
-de todas as peças padrão, cada uma de um qualquer comprimento \textit{l}, cortadas por um
-comprimento \textit{k} para produzir peças objetivo/resíduo menores. É importante referir que devem
-não devem ser contabilizadas peças resíduo, isto é, que foram obtidas a partir de uma peça padrão de
-maior comprimento \textit{k+l}.
+    \begin{tabular}{@{}p{2cm}p{2cm}p{1cm}p{2cm}p{2cm}@{}}
+        \begin{tabular}{@{}|>{\centering\arraybackslash}m{1.5cm}|}
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{0.75cm}3\vspace{0.75cm} \\
+            \hline \vspace{0.25cm}1\vspace{0.25cm} \\
+            \hline
+        \end{tabular} &
+
+        \begin{tabular}{@{}|>{\centering\arraybackslash}m{1.5cm}|}
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline
+        \end{tabular} & &
+
+        \begin{tabular}{@{}|>{\centering\arraybackslash}m{1.5cm}|}
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline
+        \end{tabular} &
+
+        \begin{tabular}{@{}|>{\centering\arraybackslash}m{1.5cm}|}
+            \hline \vspace{0.75cm}3\vspace{0.75cm} \\
+            \hline \vspace{0.25cm}1\vspace{0.25cm} \\
+            \hline
+        \end{tabular}
+    \end{tabular}
+
+    \caption{Duas possíveis interpretações para o mesmo conjunto de variáveis de decisão,
+             $y_{6,2}=1$, $y_{4,2}=1$ e $y_{4,3}=1$.}
+\end{figure}
+\egroup
+
+A partir das variáveis de decisão podemos construír o único tipo de restrição que existe no modelo
+original de Dyckhoff, denomidada de equilíbrio. As restrições deste tipo têm como objetivo assegurar
+2 aspetos importantes do modelo. Primeiramente, é exigido que, no fim da aplicação dos
+"um-cortes"{}, se tenham produzido espaços suficientes para empacotar todos os itens dentro dos
+contentores, tendo cada item um espaço reservado de comprimento igual a si mesmo. Além disso, para
+resíduos que não sejam capacidades de contentores, não podem ser cortados mais comprimentos do que
+aqueles que foram produzidos a partir da aplicação de "um-cortes". Sendo assim, matematicamente, a
+diferença entre os comprimentos produzidos e consumidos através de "um-cortes"{} deve ser superior a
+um valor mínimo, o número de itens de um comprimento a empacotar no primeiro caso, ou zero no
+segundo.
+
+O objetivo do modelo de "um-corte"{} é o de minimizar o custo dos contentores utilizados. No nosso
+caso, o custo de um contentor é a sua capacidade. Logo, a função objetivo é dada pela soma, para
+cada tipo de contentor, do produto entre a sua capacidade e o seu número de usos. Trivialmente, o
+número de usos de cada tipo de contentor é dado pela diferença entre o número de "um-cortes"{}
+executados que consomem o seu comprimento, e o número de "um-cortes"{} que o produzem.
+
+\subsection{Extensões ao modelo de Dyckhoff}
+
+Existem variáveis de decisão que têm o mesmo significado físico ($y_{k, l}$ e $y_{k, k - l}$) como
+por exemplo $y_{10,3}$ e $y_{10,7}$. Enquanto que o modelo original não descarta nenhuma variável,
+descartar uma das anteriores é possível, e foi como prosseguimos neste trabalho.
+
+Ademais, o modelo de "um-corte"{} não estabelece restrições para a disponibilidade de cada tipo de
+contentor, algo necessário para o nosso problema. O cálculo do número de contentores de uma dada
+capacidade que foram usados, em função dos "um-cortes"{} executados, já foi descrito na construção
+da função objetivo. Basta garantir que este número não seja superior à disponibilidade do contentor.
+
+Por último, o modelo de Dyckhoff original considera que todos os resíduos são iguais. Por exemplo,
+num problema de corte onde se aplique este modelo, é possível que sobrem resíduos com comprimentos
+iguais aos do \emph{stock} a cortar. O modelo considera que o número de rolos gastos destes
+comprimentos é negativo, e o valor da função objetivo (custo) diminui, considerando que os rolos
+produzidos podem ser guardados para uso posterior. No entanto, isto não faz qualquer sentido num
+problema de empacotamento, onde sobras de espaço em contentores não devem ser contabilizadas para a
+função objetivo: para cada capacidade de contentor, considera-se o valor máximo entre zero e o custo
+dos contentores usados.
 
 \section{Metaprogramação}
 
