@@ -30,6 +30,25 @@
 }
 \date{23 de março de 2024}
 
+\lstdefinestyle{codestyle}{
+    commentstyle=\color{teal},
+    keywordstyle=\color{blue},
+    numberstyle=\ttfamily\color{gray},
+    stringstyle=\color{red},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=false,
+    keepspaces=true,
+    numbers=left,
+    numbersep=10pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    xleftmargin=3em
+}
+\lstset{style=codestyle}
+
 \begin{document}
 
 \onehalfspacing
@@ -104,6 +123,13 @@ comprimento 2, 9 itens de comprimento 4, e 5 itens de comprimento 5 (tabela \ref
 objetivo é minimizar a soma das capacidade dos contentores utilizados.
 
 % TODO - Descrever modelo de Dyckhoff
+
+\section{Ficheiro de entrada do lpsolve}
+\lstinputlisting[language=c, breaklines=true]{dyckhoff.lp}
+
+\section{Ficheiro de saída do lpsolve}
+\lstinputlisting{dyckhoff.out}
+
 
 \section{Metaprogramação}
 
@@ -205,36 +231,15 @@ de horas humanas em cálculos que facilmente podem ser executados por um computa
 
 \section{Anexos}
 
-\lstdefinestyle{codestyle}{
-    commentstyle=\color{teal},
-    keywordstyle=\color{blue},
-    numberstyle=\ttfamily\color{gray},
-    stringstyle=\color{red},
-    basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,
-    breaklines=false,
-    keepspaces=true,
-    numbers=left,
-    numbersep=10pt,
-    showspaces=false,
-    showstringspaces=false,
-    showtabs=false,
-    tabsize=4,
-    xleftmargin=3em
-}
-\lstset{style=codestyle}
-
 \begin{landscape}
-
     \subsection{\emph{Script} gerador do modelo de "um-corte"{}}
-\label{code:one-cut}
-\lstinputlisting[language=python]{dyckhoff.py}
-\pagebreak
+    \label{code:one-cut}
+    \lstinputlisting[language=python]{dyckhoff.py}
+    \pagebreak
 
-\subsection{\emph{Script} gerador do modelo de padrões de corte}
-\label{code:cutting-patterns}
-\lstinputlisting[language=python]{gilmore_gomory.py}
-
+    \subsection{\emph{Script} gerador do modelo de padrões de corte}
+    \label{code:cutting-patterns}
+    \lstinputlisting[language=python]{gilmore_gomory.py}
 \end{landscape}
 
 \end{document}

@@ -73,7 +73,7 @@ def output_variable(variable: CutVar, all_variables: set[str]) -> str:
     """
 
     l, k = variable
-    ret = f'c{l}_{k}' if k > l - k else f'c{l}_{l - k}'
+    ret = f'y{l}_{k}' if k > l - k else f'y{l}_{l - k}'
     all_variables.add(ret)
     return ret
 
@@ -101,12 +101,12 @@ def output_objective(containers: Containers, \
     stock_residuals_union = set(containers.keys()).union(residuals)
 
     for l in containers:
-        b_sum = {(k + l, k): -l for k in items if k + l in stock_residuals_union}
-        c_sum = {(l, k): l for k in items if k < l}
+        b_sum = {(k + l, k): -1 for k in items if k + l in stock_residuals_union}
+        c_sum = {(l, k): 1 for k in items if k < l}
 
         ret += f'\nm{l} >= {output_sum(merge_sums([b_sum, c_sum]), all_variables)};'
 
-    objective = " + ".join([f'm{l}' for l in containers])
+    objective = " + ".join([f'{l} m{l}' for l in containers])
     return f'min: {objective};\n\n{ret}'
 
 def output_balance_restrictions(containers: Containers, \
