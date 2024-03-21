@@ -1,6 +1,7 @@
 \documentclass[12pt, a4paper, titlepage]{article}
 
 \usepackage{amsmath}
+\usepackage{array}
 \usepackage[portuguese]{babel}
 \usepackage{cite}
 \usepackage{enumerate}
@@ -9,6 +10,7 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{setspace}
+\usepackage{tabularx}
 
 \chardef\_=`_
 
@@ -126,6 +128,42 @@ funcionamento é descrito brevemente:
 \begin{enumerate}[\hspace{1cm} \bfseries 1.]
 	\item % TODO - descrição do modelo dos padrões de corte
 \end{enumerate}
+
+\section{Validação do modelo}
+
+Após a criação do modelo de um-corte, procedemos à sua validação. Para tal, utilizamos o
+\emph{lpsolve}, um programa para resolução de problemas de programação linear.
+Após a execução do programa no output do \emph{script} python, obtivemos a seguinte solução:
+
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{c|c}
+            Capacidade & Contentores utilizados \\
+            \hline
+            11          & 3                     \\
+            10          & 4                     \\
+            7           & 2
+        \end{tabular}
+    \end{center}
+    \caption{Número de contentores utilizados.}
+	\label{containers-used}
+\end{table}
+
+A partir da solução obtida, podemos concluir que a solução do modelo de um-corte é ótima, uma vez
+que a soma das capacidades dos contentores utilizados é a menor possível, dado que corresponde ao
+mesmo comprimento total dos itens a empacotar:
+
+$$3 \times 11 + 4 \times 10 + 2 \times 7 = 87 \Leftrightarrow 2 \times 13 + 4 \times 9 + 5 \times 5 = 87$$
+
+Além disso, ao descrever graficamente a solução obtida, podemos verificar que a solução é
+efetivamente ótima:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/cortes.png}
+    \caption{Visualização dos cortes}
+    \label{fig:cuts}
+\end{figure}
 
 % Isto é uma grande gambiarra, mas funciona para pôr a bibliografia como uma secção.
 \section{Bibliografia}
