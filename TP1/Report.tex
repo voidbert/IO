@@ -236,12 +236,12 @@ modelo. \cite{dyckhoff}
     \item $D \subset \mathbb{\mathbb{Z}^+}$: conjunto dos comprimentos do pedido, no caso, os
         comprimentos dos
         itens;
-    \item $R \subset \mathbb{\mathbb{Z}^+}$: conjunto de resíduos, definidos como comprimentos não
-        inferiores ao menor dos itens, que podem ser obtidos através da aplicação de "um-cortes"{}
-        sucessivos a partir de $S$ e $D$.
+    \item $R \subset \mathbb{\mathbb{Z}^+}$: conjunto de resíduos relevantes, definidos como
+        comprimentos não inferiores ao menor dos itens, que podem ser obtidos através da aplicação
+        de "um-cortes"{} sucessivos a partir de $S$ e $D$.
 \end{itemize}
 
-Neste modelo, são dados do problema os seguintes parâmetros:
+Neste modelo, são também dados do problema os seguintes parâmetros:
 
 \begin{itemize}
     \item $N_l \in \mathbb{Z}^+_0$, com $l \in (D \cup R) \setminus S$: número de itens a empacotar
@@ -259,12 +259,12 @@ $k - l$. Algumas regras triviais aplicam-se aos valores de $k$ e $l$:
 
 \begin{itemize}
     \item O número de cortes é inteiro e não negativo: $y_{k, l} \in \mathbb{Z}^+_0$;
-    \item De um "um-corte"{} não podem resultar comprimentos maiores do que o comprimento cortado:
-        $l < k$;
+    \item De um "um-corte"{} não podem resultar comprimentos maiores ou iguais do que o comprimento
+        cortado: $l < k$;
     \item De qualquer "um-corte"{}, um dos comprimentos produzidos deve ser o comprimento de um
         item: $l \in D$;
     \item Apenas se podem dividir capacidades de contentores ou de comprimentos obtidos através de
-        cortes anteriores (resíduos): $k \in S \cup R$.
+        "um-cortes"{} anteriores (resíduos): $k \in S \cup R$.
 \end{itemize}
 
 \subsection{Função objetivo}
@@ -284,11 +284,11 @@ assegurando-se que o número de usos de um dado contentor não é negativo:
 Na equação anterior, os conjuntos $B_l$ e $C_l$ assumem os seguintes valores:
 
 \begin{equation}
-    B_l = \left \{k \in D \mid k + l \in S \cup R \right \} \label{eq:Bl}
+    B_l = \left \{k \in D \mid k + l \in S \cup R \right \} \label{eq:Bl} \nonumber
 \end{equation}
 
 \begin{equation}
-    C_l = \left \{k \in D \mid k < l \right \} \label{eq:Cl}
+    C_l = \left \{k \in D \mid k < l \right \} \label{eq:Cl} \nonumber
 \end{equation}
 
 Tendo em conta as definições de $B_l$ e $C_l$, conclui-se que o somatório a {\color{blue} azul}
@@ -297,10 +297,10 @@ que o somatório a {\color{ForestGreen} verde} representa o número de comprimen
 através de "um-cortes"{}.
 
 A linearização desta função objetivo é um processo simples: para cada $l \in S$, considera-se uma
-variável de decisão $m_l$, que representa o máximo entre $0$ e a diferença de somatórios. Sendo
-assim, $m_l$ será superior ou igual a ambos estes valores, e a minimização da soma de todos os $m_l$
-conduzirá a que cada uma destas variáveis assuma exatamente um dos valores ($0$ ou a diferença entre
-somatórios), visto que solução ótima estará na fronteira de um poliedro convexo:
+variável de decisão $m_l$, que representa o máximo entre $0$ e a diferença entre os somatórios.
+Sendo assim, $m_l$ será superior ou igual a ambos estes valores, e a minimização da soma de todos os
+$m_l$ conduzirá a que cada uma destas variáveis assuma exatamente um dos valores ($0$ ou a diferença
+entre somatórios), visto que a solução ótima estará na fronteira de um poliedro convexo:
 
 \begin{equation}
     \begin{split}
@@ -341,18 +341,19 @@ Os conjuntos $B_l$ e $C_l$ já foram definidos anteriormente, e a definição de
         \left \{ k \in S \cup R \mid k > l \right \}, & l \in D \\
         \varnothing, & l \not \in D
     \end{cases}
+    \nonumber
 \end{equation}
 
-Assim, os somatórios a {\color{red} vermelho} e {\color{ForestGreen} vede} representam o número de
+Assim, os somatórios a {\color{red} vermelho} e {\color{ForestGreen} verde} representam o número de
 espaços gerados com comprimento $l$, enquanto que o somatório a {\color{blue} azul} representa o
 número desses espaços consumidos por "um-cortes"{} subsequentes. O balanço final de cortes não deve
 ser inferior a $0$, e nos casos em que há itens a empacotar, $N_l$.
 
 \subsubsection{Restrições de contentores}
 
-Devido à disponibilidade de cada contentor, é necessário estabelecer restrições que garantam que o
-número de contentores usado de cada tipo (já calculado na função objetivo) não ultrapasse a sua
-disponibilidade. Para cada $l: d_l \not = \infty$, tem-se a seguinte restrição:
+Devido à disponibilidade limitada de cada contentor, é necessário estabelecer restrições que
+garantam que o número de contentores usado de cada tipo (já calculado na função objetivo) não
+ultrapasse a sua disponibilidade. Para cada $l: d_l \not = \infty$, tem-se a seguinte restrição:
 
 \begin{equation}
     {\color{blue} \sum_{k \in C_l} y_{l,k}} -
