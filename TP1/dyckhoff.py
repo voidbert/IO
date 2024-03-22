@@ -66,18 +66,18 @@ def merge_sums(sums: Iterable[VarSum]) -> VarSum:
     return {(l, k): coefficient for (l, k), coefficient in ret.items() if \
         not (k < l - k and (l, l - k) in ret)}
 
-def output_variable(variable: CutVar, all_variables: set[str]) -> str:
+def output_variable(variable: CutVar, all_variables: set[str], items: Items) -> str:
     """
         Outputs LP code for a variable representing a cut. all_variables will be filled with all
         variables ever outputted, so they can later be declared to be integers later on.
     """
 
     l, k = variable
-    ret = f'y{l}_{k}' if k > l - k else f'y{l}_{l - k}'
+    ret = f'y{l}_{k}' if k in items else f'y{l}_{l - k}'
     all_variables.add(ret)
     return ret
 
-def output_sum(summation: VarSum, all_variables: set[str]) -> str:
+def output_sum(summation: VarSum, all_variables: set[str], items: Items) -> str:
     """
         Outputs LP code with a sum of variables and their linear coefficients. all_variables will be
         filled with allvariables ever outputted, so they can later be declared to be integers.
@@ -85,7 +85,8 @@ def output_sum(summation: VarSum, all_variables: set[str]) -> str:
 
     ret = ''
     for variable, coefficient in sorted(summation.items(), key=lambda item: item[0], reverse=True):
-        ret += f'{coefficient} {output_variable(variable, all_variables)} + '
+        str_coefficient = '' if coefficient == 1 else f'{coefficient} '
+        ret += f'{str_coefficient}{output_variable(variable, all_variables, items)} + '
     return ret[:-3]
 
 def output_objective(containers: Containers, \
@@ -104,7 +105,7 @@ def output_objective(containers: Containers, \
         b_sum = {(k + l, k): -1 for k in items if k + l in stock_residuals_union}
         c_sum = {(l, k): 1 for k in items if k < l}
 
-        ret += f'\nm{l} >= {output_sum(merge_sums([b_sum, c_sum]), all_variables)};'
+        ret += f'\nm{l} >= {output_sum(merge_sums([b_sum, c_sum]), all_variables, items)};'
 
     objective = " + ".join([f'{l} m{l}' for l in containers])
     return f'min: {objective};\n\n{ret}'
@@ -129,7 +130,7 @@ def output_balance_restrictions(containers: Containers, \
         c_sum = {(l, k): -1 for k in items if k < l}
 
         summation = merge_sums([a_sum, b_sum, c_sum])
-        ret += f'\nl{l}: {output_sum(summation, all_variables)} >= {items.get(l, 0)};'
+        ret += f'\nl{l}: {output_sum(summation, all_variables, items)} >= {items.get(l, 0)};'
 
     return ret
 
@@ -147,13 +148,13 @@ def output_container_count_bounds(containers: Containers, \
             c_sum = {(l, k): 1 for k in items if k < l}
             summation = merge_sums([b_sum, c_sum])
 
-            ret += f'\nc{l}: {output_sum(summation, all_variables)} <= {upper_bound};'
+            ret += f'\nc{l}: {output_sum(summation, all_variables, items)} <= {upper_bound};'
 
     return ret
 
 def output_integer_restrictions(all_variables: set[str]) -> str:
     """ Outputs LP code telling that all variables ever outputted are integers. """
-    return 'int ' + ', '.join(all_variables) + ';'
+    return 'int ' + ', '.join(sorted(all_variables)) + ';'
 
 def output_model(containers: Containers, items: Items) -> str:
     """ Outputs LP code modelling a give bin-packing problem. """
