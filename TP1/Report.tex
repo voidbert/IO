@@ -3,6 +3,7 @@
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{array}
 \usepackage[portuguese]{babel}
 \usepackage{cite}
 \usepackage{enumerate}
@@ -31,6 +32,25 @@
     \end{tabular}
 }
 \date{23 de março de 2024}
+
+\lstdefinestyle{codestyle}{
+    commentstyle=\color{teal},
+    keywordstyle=\color{blue},
+    numberstyle=\ttfamily\color{gray},
+    stringstyle=\color{red},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=false,
+    keepspaces=true,
+    numbers=left,
+    numbersep=10pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    xleftmargin=3em
+}
+\lstset{style=codestyle}
 
 \begin{document}
 
@@ -104,7 +124,101 @@ das outras capacidades (tabela \ref{containers-data}). Pretendem-se empacotar 13
 comprimento 2, 9 itens de comprimento 4, e 5 itens de comprimento 5 (tabela \ref{items-data}). O
 objetivo é minimizar a soma das capacidade dos contentores utilizados.
 
-% TODO - Descrever modelo de Dyckhoff
+\subsection{Modelo de Dyckhoff}
+
+O modelo de "um-corte"{}, de Dyckhoff \cite{dyckhoff}, assenta na ideia do "padrão-um-corte", uma
+divisão de um comprimento $k$ em dois menores, $l$ e $k - l$, representada pelo tuplo $[k; l]$.
+Note-se que nesta secção adaptaremos o vocabulário do modelo, referente a um problema de
+\emph{cutting stock}, para o nosso problema de \emph{bin packing}. Estes cortes são aplicados
+recursivamente, começando com valores de $k$ iguais às capacidades dos contentores, e valores de $l$
+sempre iguais aos comprimentos dos itens. Os resíduos provenientes do corte $[k; l]$ podem depois
+ser divididos em partes menores, e assim sucessivamente.
+
+São denominados resíduos todos os comprimentos que não são inferiores ao mais curto dos itens, e
+que podem ser obtidos através de "um-cortes"{} sucessivos a partir das capacidades dos contentores e
+dos comprimentos dos itens. Da perspetiva do modelo de Dyckhoff, dois resíduos do mesmo comprimento
+são equivalentes, sejam eles capacidades de contentores ou resultados de "um-cortes"{} anteriores.
+
+Neste modelo, cada variável de decisão $y_{k, l}$ corresponde ao número de comprimentos $k$
+divididos de acordo com o "um-corte"{} $[k; l]$. Com base numa solução de um problema por este
+modelo, é possível associar os "um-cortes"{} à distribuição dos itens pelos contentores, apesar de
+poder haver várias interpretações possíveis para o mesmo conjunto de valores das variáveis.
+
+\bgroup
+\renewcommand{\arraystretch}{0}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{tabular}{@{}p{2cm}p{2cm}p{1cm}p{2cm}p{2cm}@{}}
+        \begin{tabular}{@{}|>{\centering\arraybackslash}m{1.5cm}|}
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{0.75cm}3\vspace{0.75cm} \\
+            \hline \vspace{0.25cm}1\vspace{0.25cm} \\
+            \hline
+        \end{tabular} &
+
+        \begin{tabular}{@{}|>{\centering\arraybackslash}m{1.5cm}|}
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline
+        \end{tabular} & &
+
+        \begin{tabular}{@{}|>{\centering\arraybackslash}m{1.5cm}|}
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline
+        \end{tabular} &
+
+        \begin{tabular}{@{}|>{\centering\arraybackslash}m{1.5cm}|}
+            \hline \vspace{0.75cm}3\vspace{0.75cm} \\
+            \hline \vspace{0.25cm}1\vspace{0.25cm} \\
+            \hline
+        \end{tabular}
+    \end{tabular}
+
+    \caption{Duas possíveis interpretações para o mesmo conjunto de valores de variáveis de decisão:
+             $y_{6,2}=1$, $y_{4,2}=1$ e $y_{4,3}=1$.}
+\end{figure}
+\egroup
+
+A partir das variáveis de decisão podemos construír o único tipo de restrição que existe no modelo
+original de Dyckhoff, denomidada de equilíbrio. As restrições deste tipo têm como objetivo assegurar
+dois aspetos importantes do modelo. Primeiramente, é exigido que, no fim da aplicação dos
+"um-cortes"{}, se tenham produzido espaços suficientes para empacotar todos os itens dentro dos
+contentores, tendo cada item um espaço reservado de comprimento igual a si mesmo. Além disso, para
+resíduos que não sejam capacidades de contentores, não podem ser cortados mais comprimentos do que
+aqueles que foram produzidos a partir da aplicação de "um-cortes". Sendo assim, matematicamente, a
+diferença entre os comprimentos produzidos e consumidos através de "um-cortes"{} deve ser superior a
+um valor mínimo, o número de itens de um comprimento a empacotar no primeiro caso, ou zero no
+segundo.
+
+O objetivo do modelo de "um-corte"{} é o de minimizar o custo dos contentores utilizados. No nosso
+caso, o custo de um contentor é a sua capacidade. Logo, a função objetivo é dada pela soma, para
+cada tipo de contentor, do produto entre a sua capacidade e o seu número de usos. Trivialmente, o
+número de usos de cada tipo de contentor é dado pela diferença entre o número de "um-cortes"{}
+executados que consomem o seu comprimento, e o número de "um-cortes"{} que o produzem.
+
+\subsection{Extensões ao modelo de Dyckhoff}
+
+Existem variáveis de decisão que têm o mesmo significado físico ($y_{k, l}$ e $y_{k, k - l}$), como
+por exemplo $y_{10,3}$ e $y_{10,7}$. Enquanto que o modelo original não descarta nenhuma variável,
+descartar uma das anteriores é possível, e foi como prosseguimos neste trabalho.
+
+Ademais, o modelo de "um-corte"{} não estabelece restrições para a disponibilidade de cada tipo de
+contentor, algo necessário para o nosso problema. O cálculo do número de contentores de uma dada
+capacidade que foram usados, em função dos "um-cortes"{} executados, já foi descrito na construção
+da função objetivo. Basta garantir que este número não seja superior à disponibilidade do contentor.
+
+Por último, o modelo de Dyckhoff original considera que todos os resíduos são iguais. Por exemplo,
+num problema de corte onde se aplique este modelo, é possível que sobrem resíduos com comprimentos
+iguais aos do \emph{stock} a cortar. O modelo considera que o número de rolos gastos destes
+comprimentos é negativo, e o valor da função objetivo (custo) diminui, considerando que os rolos
+produzidos podem ser guardados para uso posterior. No entanto, isto não faz qualquer sentido num
+problema de empacotamento, onde sobras de espaço em contentores não devem ser contabilizadas para a
+função objetivo: para cada capacidade de contentor, considera-se o valor máximo entre zero e o custo
+dos contentores usados.
 
 \section{Modelo de "um-corte"{} para um problema genérico}
 
@@ -273,6 +387,12 @@ contentores):
 
 % TODO - escrever esta secção
 
+\section{Ficheiro de entrada do lpsolve}
+\lstinputlisting[language=c, breaklines=true]{dyckhoff.lp}
+
+\section{Ficheiro de saída do lpsolve}
+\lstinputlisting{dyckhoff.out}
+
 \section{Metaprogramação}
 
 A expansão dos vários sumatórios do modelo de "um-corte"{} é, devido à sua dimensão, difícil de ser
@@ -371,36 +491,15 @@ de horas humanas em cálculos que facilmente podem ser executados por um computa
 
 \section{Anexos}
 
-\lstdefinestyle{codestyle}{
-    commentstyle=\color{teal},
-    keywordstyle=\color{blue},
-    numberstyle=\ttfamily\color{gray},
-    stringstyle=\color{red},
-    basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,
-    breaklines=false,
-    keepspaces=true,
-    numbers=left,
-    numbersep=10pt,
-    showspaces=false,
-    showstringspaces=false,
-    showtabs=false,
-    tabsize=4,
-    xleftmargin=3em
-}
-\lstset{style=codestyle}
-
 \begin{landscape}
-
     \subsection{\emph{Script} gerador do modelo de "um-corte"{}}
-\label{code:one-cut}
-\lstinputlisting[language=python]{dyckhoff.py}
-\pagebreak
+    \label{code:one-cut}
+    \lstinputlisting[language=python]{dyckhoff.py}
+    \pagebreak
 
-\subsection{\emph{Script} gerador do modelo de padrões de corte}
-\label{code:cutting-patterns}
-\lstinputlisting[language=python]{gilmore_gomory.py}
-
+    \subsection{\emph{Script} gerador do modelo de padrões de corte}
+    \label{code:cutting-patterns}
+    \lstinputlisting[language=python]{gilmore_gomory.py}
 \end{landscape}
 
 \end{document}
