@@ -164,7 +164,8 @@ assegurando-se que o número de usos de um dado contentor não é negativo:
     \text{min: } \sum_{l \in S} c_l \cdot \max \left \{ 0,
         {\color{blue} \sum_{k \in C_l} y_{l,k}} -
         {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}}
-    \right \} \label{eq:objective_long}
+    \right \}
+    \label{eq:objective}
 \end{equation}
 
 Na equação anterior, os conjuntos $B_l$ e $C_l$ assumem os seguintes valores:
@@ -178,9 +179,9 @@ Na equação anterior, os conjuntos $B_l$ e $C_l$ assumem os seguintes valores:
 \end{equation}
 
 Tendo em conta as definições de $B_l$ e $C_l$, conclui-se que o somatório a {\color{blue} azul}
-na função objetivo \eqref{eq:objective_long} representa o número de comprimentos $l$ consumidos,
-enquanto que o somatório a {\color{ForestGreen} verde} representa o número de comprimentos $l$
-produzidos através de "um-cortes"{}.
+na função objetivo \eqref{eq:objective} representa o número de comprimentos $l$ consumidos, enquanto
+que o somatório a {\color{ForestGreen} verde} representa o número de comprimentos $l$ produzidos
+através de "um-cortes"{}.
 
 A linearização desta função objetivo é um processo simples: para cada $l \in S$, considera-se uma
 variável de decisão $m_l$, que representa o máximo entre $0$ e a diferença de somatórios. Sendo
@@ -196,6 +197,7 @@ somatórios), visto que solução ótima estará na fronteira de um poliedro con
             m_l \geq \sum_{k \in C_l} y_{l,k} - \sum_{k \in B_l} y_{k + l, k}
         \end{cases}
     \end{split}
+    \label{eq:objective-expanded}
 \end{equation}
 
 \subsection{Restrições}
@@ -215,6 +217,7 @@ seguinte restrição:
     {\color{red} \sum_{k \in A_l} y_{k, l}} +
     {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}} -
     {\color{blue} \sum_{k \in C_l} y_{l, k}} \geq N_l
+    \label{eq:balance-restriction}
 \end{equation}
 
 Os conjuntos $B_l$ e $C_l$ já foram definidos anteriormente, e a definição de $A_l$ segue-se abaixo:
@@ -241,6 +244,7 @@ disponibilidade. Para cada $l: d_l \not = \infty$, tem-se a seguinte restrição
 \begin{equation}
     {\color{blue} \sum_{k \in C_l} y_{l,k}} -
     {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}} \leq d_l
+    \label{eq:container-restriction}
 \end{equation}
 
 Apesar de denominarmos estas restrições "de contentores"{}, tal foi feito apenas para as distinguir
@@ -281,22 +285,20 @@ geram o modelo LP automaticamente.
 O nosso \emph{script} para a implementação deste modelo encontra-se em anexo (ver
 \ref{code:one-cut}) e o seu funcionamento passo a passo é descrito abaixo.
 
-% TODO - citar fórmulas do modelo matemático neste relatório
-
 \begin{enumerate}[\hspace{1cm} \bfseries 1.]
     \item Calcular o conjunto de resíduos ($R$), sucessivamente executando todos os cortes possíveis
         com base nas capacidades dos contentores e nos comprimentos dos itens.
 
     \item Gerar a função objetivo, em particular, a variação que não diminui o custo de uma solução
         caso tenham sobrado espaços com comprimentos no conjunto das capacidades dos contentores
-        (isto apenas faz sentido em problemas de corte). É necessária a geração de variáveis e
-        restrições auxiliares para se calcular o máximo entre $0$ e o custo dos contentores gastos.
+        (ver equação \ref{eq:objective-expanded}).
 
-    \item Gerar as restrições de equilíbrio, calculando os conjuntos e os sumatórios descritos no
-        artigo.
+    \item Gerar as restrições de equilíbrio, calculando os conjuntos e os sumatórios descritos em
+        \eqref{eq:balance-restriction}.
 
     \item Gerar restrições a afirmar que o número de contentores de um dado tipo utilizados não pode
-        ser superior à disponibilidade dessa capacidade de contentor.
+        ser superior à disponibilidade dessa capacidade de contentor (ver equação
+        \ref{eq:container-restriction}).
 
     \item Restringir todas as variáveis de corte a valores inteiros.
 \end{enumerate}
