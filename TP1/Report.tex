@@ -386,7 +386,103 @@ contentores):
 
 \section{Aplicação do modelo de "um-corte"{} ao nosso problema}
 
-% TODO - escrever esta secção
+Para os parâmetros do nosso problema, consideramos $S = \{ 7, 10, 11 \}$, as capacidades dos
+contentores, $D = \{ 2, 4, 5 \}$, os comprimentos dos itens, e $R = \{ 2, 3, 4, 5, 6, 7, 8, 9 \}$,
+os comprimentos dos resíduos úteis, calculados com base na aplicação de "um-cortes"{} sucessivos:
+
+\begin{equation}
+    \begin{split}
+        R_0           & \leftarrow  \varnothing \\
+        [11; 2]: R_1 & \leftarrow R_0 \cup \{ 2, 9 \} \\
+        [11; 4]: R_2 & \leftarrow R_1 \cup \{ 4, 7 \} \\
+        [11; 5]: R_3 & \leftarrow R_2 \cup \{ 5, 6 \} \\
+        [10; 2]: R_4 & \leftarrow R_3 \cup \{ 2, 8 \} \\
+                     & \hspace{3mm} \vdots \nonumber
+    \end{split} \nonumber
+\end{equation}
+
+Dado o número de itens de cada tipo a empacotar, $N_2 = 13$, $N_4 = 9$ e $N_5 = 5$. Ademais, com a
+disponibilidade de contentores de cada tipo, $d_7 = d_{10} = 5$ e $d_{11} = \infty$. Sabemos ainda
+que cada contentor tem um custo igual à sua capacidade, dado que procuramos minimizar a soma dos
+comprimentos dos contentores utilizados: $\forall_{l \in S}, c_l = l$.
+
+Antes da expansão das restrições, não sabemos quais serão as variáveis de decisão que estarão
+presentes no modelo final. No entanto, tendo já feito isso, tem-se:
+
+\begin{itemize}
+    \item Variáveis necessárias para a linearização da função objetivo ($m_l$ representa o número de
+        contentores usados de capacidade $l$): $m_7$, $m_{10}$, $m_{11}$ $\in \mathbb{Z}^+_0$
+    \item Variáveis de corte (com $y_{k, l}$ a representar o número de comprimentos $k$ divididos em
+        $l$ e $k - l$): $y_{11, 5}$, $y_{11, 4}$, $y_{11, 2}$, $y_{10,5}$, $y_{10,4}$, $y_{10, 2}$,
+        $y_{9, 2}$, $y_{7, 5}$, $y_{7, 4}$, $y_{8, 2}$, $y_{6, 4}$, $y_{5, 2}$, $y_{4, 2}$,
+        $y_{3, 2}$, $y_{8, 5}$, $y_{9, 5}$, $y_{8, 4}$, $y_{5, 4}$, $y_{6, 5}$ $\in \mathbb{Z}^+_0$
+\end{itemize}
+
+A expansão da expressão em \eqref{eq:objective-expanded} resulta na seguinte função objetivo e
+restrições:
+
+\begin{equation}
+    \begin{split}
+        \text{min: }    & 11 m_{11} + 10 m_{10} + 7 m_7 \\
+        \text{Suj. a: } & m_{11} \geq   y_{11, 5} + y_{11, 4} + y_{11, 2} \\
+                        & m_{10} \geq   y_{10, 5} + y_{10, 4} + y_{10, 2} \\
+                        & m_7    \geq - y_{11, 4} - y_{9, 2}  + y_{7, 5} + y_{7, 4} \\
+    \end{split} \nonumber
+\end{equation}
+
+A expansão das restrições de equilíbrio em \eqref{eq:balance-restriction} resulta nas seguintes
+expressões:
+
+\begin{equation}
+    \begin{split}
+        y_{11, 2} + y_{10, 2} + y_{9, 2} + y_{8, 2} + y_{7, 5} + y_{6, 4} + y_{5, 2} + 2 y_{4, 2} +
+            y_{3, 2} & \geq 13 \\
+        y_{8, 5} + y_{7, 4} + y_{5, 2} - y_{3, 2} & \geq 0 \\
+        y_{11, 4} + y_{10, 4} + y_{9, 5} + 2 y_{8, 4} + y_{7, 4} + y_{6, 4} + y_{5, 4} - y_{4, 2}
+            & \geq 9 \\
+        y_{11, 5} + 2 y_{10, 5} + y_{9, 5} + y_{8, 5} + y_{7, 5} + y_{6, 5} - y_{5, 4} - y_{5, 2}
+            & \geq 5 \\
+        y_{11, 5} + y_{10, 4} + y_{8, 2} - y_{6, 5} - y_{6, 4} & \geq 0 \\
+        y_{10, 2} - y_{8, 5} - y_{8, 4} - y_{8, 2} & \geq 0 \\
+        y_{11, 2} - y_{9, 5} - y_{9, 2} & \geq 0
+    \end{split} \nonumber
+\end{equation}
+
+Ademais, as restrições relativas ao número máximo de contentores \eqref{eq:container-restriction}
+são expandidas para o seguinte:
+
+\begin{equation}
+    \begin{split}
+        y_{10, 5} + y_{10, 4} + y_{10, 2} & \leq 5 \\
+        - y_{11, 4} - y_{9, 2}  + y_{7, 5} + y_{7, 4} & \leq 5
+    \end{split}
+\end{equation}
+
+É de notar que omitimos as restrições do tipo $m_l, y_{k, l} \geq 0$, pois estas são asseguradas
+pelo tipo das variáveis (inteiros não negativos), tanto matematicamente como no \texttt{lpsolve}.
+Segue-se o nosso modelo completo:
+
+\begin{equation}
+    \begin{split}
+        \text{min: }    & 11 m_{11} + 10 m_{10} + 7 m_7 \\
+        \text{Suj. a: } & m_{11} \geq   y_{11, 5} + y_{11, 4} + y_{11, 2} \\
+                        & m_{10} \geq   y_{10, 5} + y_{10, 4} + y_{10, 2} \\
+                        & m_7    \geq - y_{11, 4} - y_{9, 2}  + y_{7, 5} + y_{7, 4} \\ \\
+                        & y_{11, 2} + y_{10, 2} + y_{9, 2} + y_{8, 2} + y_{7, 5} + y_{6, 4} +
+                          y_{5, 2} + 2 y_{4, 2} + y_{3, 2} \geq 13 \\
+                        & y_{8, 5} + y_{7, 4} + y_{5, 2} - y_{3, 2} \geq 0 \\
+                        & y_{11, 4} + y_{10, 4} + y_{9, 5} + 2 y_{8, 4} + y_{7, 4} + y_{6, 4} +
+                          y_{5, 4} - y_{4, 2} \geq 9 \\
+                        & y_{11, 5} + 2 y_{10, 5} + y_{9, 5} + y_{8, 5} + y_{7, 5} + y_{6, 5} -
+                          y_{5, 4} - y_{5, 2} \geq 5 \\
+                        & y_{11, 5} + y_{10, 4} + y_{8, 2} - y_{6, 5} - y_{6, 4} \geq 0 \\
+                        & y_{10, 2} - y_{8, 5} - y_{8, 4} - y_{8, 2} \geq 0 \\
+                        & y_{11, 2} - y_{9, 5} - y_{9, 2} \geq 0 \\ \\
+                        & y_{10, 5} + y_{10, 4} + y_{10, 2} \leq 5 \\
+                        & - y_{11, 4} - y_{9, 2}  + y_{7, 5} + y_{7, 4} \leq 5 \\ \\
+                        & y_{l, k}, m_l \in \mathbb{Z}_0^+
+    \end{split} \nonumber
+\end{equation}
 
 \section{Ficheiro de entrada do lpsolve}
 \lstinputlisting[language=c, breaklines=true]{dyckhoff.lp}
