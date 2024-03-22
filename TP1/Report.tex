@@ -1,6 +1,8 @@
 \documentclass[12pt, a4paper, titlepage]{article}
 
+\usepackage{amsfonts}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage[portuguese]{babel}
 \usepackage{cite}
 \usepackage{enumerate}
@@ -11,7 +13,7 @@
 \usepackage{listings}
 \usepackage{lscape}
 \usepackage{setspace}
-\usepackage{xcolor}
+\usepackage[dvipsnames]{xcolor}
 
 \chardef\_=`_
 
@@ -105,6 +107,165 @@ objetivo é minimizar a soma das capacidade dos contentores utilizados.
 
 % TODO - Descrever modelo de Dyckhoff
 
+\section{Modelo de "um-corte"{} para um problema genérico}
+
+\subsection{Parâmetros e notação utilizada}
+
+Antes de apresentar o modelo final adaptado ao nosso problema, apresentaremos a formulação
+matemática do modelo de "um-corte"{} para um caso geral, complementando a descrição meramente
+textual feita anteriormente. Alguns objetos matemáticos devem ser conhecidos antes da introdução da
+função objetivo e das restrições existentes. Será seguida a mesma notação do artigo que definiu este
+modelo. \cite{dyckhoff}
+
+\begin{itemize}
+    \item $S \subset \mathbb{\mathbb{Z}^+}$: conjunto dos comprimentos de \emph{stock}, no caso,
+        as capacidades dos contentores;
+    \item $D \subset \mathbb{\mathbb{Z}^+}$: conjunto dos comprimentos do pedido, no caso, os
+        comprimentos dos
+        itens;
+    \item $R \subset \mathbb{\mathbb{Z}^+}$: conjunto de resíduos, definidos como comprimentos não
+        inferiores ao menor dos itens, que podem ser obtidos através da aplicação de "um-cortes"{}
+        sucessivos a partir de $S$ e $D$.
+\end{itemize}
+
+Neste modelo, são dados do problema os seguintes parâmetros:
+
+\begin{itemize}
+    \item $N_l \in \mathbb{Z}^+_0$, com $l \in (D \cup R) \setminus S$: número de itens a empacotar
+        com o comprimento $l$ (quando $l \not \in D$, $N_l = 0$);
+    \item $c_l \in \mathbb{R}$, com $l \in S$: custo de um contentor com comprimento $l$;
+    \item $d_l \in \mathbb{Z}^+ \cup \{ \infty \}$, com $l \in S$: disponibilidade de um contentor
+        de um dado tipo.
+\end{itemize}
+
+\subsection{Variáveis de decisão}
+
+Como já explicado, as variáveis de decisão principais deste problema são da forma $y_{k, l}$, e o
+seu valor representa o número de divisões de comprimentos $k$ em comprimentos menores, $l$ e
+$k - l$. Algumas regras triviais aplicam-se aos valores de $k$ e $l$:
+
+\begin{itemize}
+    \item O número de cortes é inteiro e não negativo: $y_{k, l} \in \mathbb{Z}^+_0$;
+    \item De um "um-corte"{} não podem resultar comprimentos maiores do que o comprimento cortado:
+        $l < k$;
+    \item De qualquer "um-corte"{}, um dos comprimentos produzidos deve ser o comprimento de um
+        item: $l \in D$;
+    \item Apenas se podem dividir capacidades de contentores ou de comprimentos obtidos através de
+        cortes anteriores (resíduos): $k \in S \cup R$.
+\end{itemize}
+
+\subsection{Função objetivo}
+
+Na nossa extensão ao modelo de Dyckhoff, são necessárias outras variáveis de decisão para a
+linearização da função objetivo. Procura-se minimizar a soma dos custos dos contentores utilizados,
+assegurando-se que o número de usos de um dado contentor não é negativo:
+
+\begin{equation}
+    \text{min: } \sum_{l \in S} c_l \cdot \max \left \{ 0,
+        {\color{blue} \sum_{k \in C_l} y_{l,k}} -
+        {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}}
+    \right \} \label{eq:objective_long}
+\end{equation}
+
+Na equação anterior, os conjuntos $B_l$ e $C_l$ assumem os seguintes valores:
+
+\begin{equation}
+    B_l = \left \{k \in D \mid k + l \in S \cup R \right \} \label{eq:Bl}
+\end{equation}
+
+\begin{equation}
+    C_l = \left \{k \in D \mid k < l \right \} \label{eq:Cl}
+\end{equation}
+
+Tendo em conta as definições de $B_l$ e $C_l$, conclui-se que o somatório a {\color{blue} azul}
+na função objetivo \eqref{eq:objective_long} representa o número de comprimentos $l$ consumidos,
+enquanto que o somatório a {\color{ForestGreen} verde} representa o número de comprimentos $l$
+produzidos através de "um-cortes"{}.
+
+A linearização desta função objetivo é um processo simples: para cada $l \in S$, considera-se uma
+variável de decisão $m_l$, que representa o máximo entre $0$ e a diferença de somatórios. Sendo
+assim, $m_l$ será superior ou igual a ambos estes valores, e a minimização da soma de todos os $m_l$
+conduzirá a que cada uma destas variáveis assuma exatamente um dos valores ($0$ ou a diferença entre
+somatórios), visto que solução ótima estará na fronteira de um poliedro convexo:
+
+\begin{equation}
+    \begin{split}
+        \text{min: }      & \sum_{l \in S} c_l \cdot m_l \\
+        \forall_{l \in S} & \begin{cases}
+            m_l \geq 0, \\
+            m_l \geq \sum_{k \in C_l} y_{l,k} - \sum_{k \in B_l} y_{k + l, k}
+        \end{cases}
+    \end{split}
+\end{equation}
+
+\subsection{Restrições}
+
+Ao contrário das restrições anteriores, existentes apenas para ser possível uma representação linear
+do modelo, segue-se a apresentação das restrições impostas pelo contexto e dados do problema.
+
+\subsubsection{Restrições de equilíbrio}
+
+Estas restrições são definidas no artigo de Dyckhoff \cite{dyckhoff} e garantem dois aspetos:
+produz-se o número de espaços suficientes para empacotar os itens necessários, e não se consomem
+mais comprimentos em "um-cortes"{} do que os que são produzidos. Para cada comprimento desejado, ou
+resíduo que não igual à capacidade de um contentor ($l \in (D \cup R) \setminus S$), tem-se a
+seguinte restrição:
+
+\begin{equation}
+    {\color{red} \sum_{k \in A_l} y_{k, l}} +
+    {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}} -
+    {\color{blue} \sum_{k \in C_l} y_{l, k}} \geq N_l
+\end{equation}
+
+Os conjuntos $B_l$ e $C_l$ já foram definidos anteriormente, e a definição de $A_l$ segue-se abaixo:
+
+\begin{equation}
+    A_l =
+    \begin{cases}
+        \left \{ k \in S \cup R \mid k > l \right \}, & l \in D \\
+        \varnothing, & l \not \in D
+    \end{cases}
+\end{equation}
+
+Assim, os somatórios a {\color{red} vermelho} e {\color{ForestGreen} vede} representam o número de
+espaços gerados com comprimento $l$, enquanto que o somatório a {\color{blue} azul} representa o
+número desses espaços consumidos por "um-cortes"{} subsequentes. O balanço final de cortes não deve
+ser inferior a $0$, e nos casos em que há itens a empacotar, $N_l$.
+
+\subsubsection{Restrições de contentores}
+
+Devido à disponibilidade de cada contentor, é necessário estabelecer restrições que garantam que o
+número de contentores usado de cada tipo (já calculado na função objetivo) não ultrapasse a sua
+disponibilidade. Para cada $l: d_l \not = \infty$, tem-se a seguinte restrição:
+
+\begin{equation}
+    {\color{blue} \sum_{k \in C_l} y_{l,k}} -
+    {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}} \leq d_l
+\end{equation}
+
+Apesar de denominarmos estas restrições "de contentores"{}, tal foi feito apenas para as distinguir
+das do modelo original de Dyckhoff. No entanto, podemos provar que estas se tratam de meras
+restrições de equilíbrio que consideram $N_l = -d_l$ (não se pode ultrapassar um dado consumo de
+contentores):
+
+\begin{equation}
+    \begin{split}
+        \nonumber
+        {\color{blue} \sum_{k \in C_l} y_{l,k}} -
+        {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}} \leq d_l
+        & \Leftrightarrow \\
+        \nonumber
+        {\color{red} 0} +
+        {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}} -
+        {\color{blue} \sum_{k \in C_l} y_{l,k}} \geq - d_l
+        & \Leftrightarrow_{\color{red} A = \varnothing} \\
+        \nonumber
+        {\color{red} \sum_{k \in A_l} y_{k, l}} +
+        {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}} -
+        {\color{blue} \sum_{k \in C_l} y_{l,k}} \geq - d_l & = N_l
+    \end{split}
+\end{equation}
+
 \section{Metaprogramação}
 
 A expansão dos vários sumatórios do modelo de "um-corte"{} é, devido à sua dimensão, difícil de ser
@@ -186,79 +347,6 @@ problemas de empacotamento a uma dimensão. Este conhecimento permitiu-nos imple
 constroem estes modelos sem qualquer intervenção humana, tornando a sua aplicação mais simples em
 problemas maiores e em contextos em que os dados estão em constante mudança, evitando o desperdício
 de horas humanas em cálculos que facilmente podem ser executados por um computador.
-
-
-\subsection{Modelo dos padrões de corte}
-
-Inicialmente, o nosso grupo resolveu o problema de empacotamento proposto utilizando o modelo dos
-padrões de corte, de modo a poder verificar a solução do modelo do um-corte quando este fosse
-implementado. Também desenvolvemos um \emph{script} que gera este modelo automaticamente, cujo
-funcionamento é descrito brevemente:
-
-\begin{enumerate}[\hspace{1cm} \bfseries 1.]
-	\item % TODO - descrição do modelo dos padrões de corte
-\end{enumerate}
-
-\section*{Modelo Matemático para o Problema de Corte - Modelo II}
-
-\subsection*{Conjuntos:}
-\begin{itemize}
-    \item $S$: Conjunto de todos os comprimentos padrão.
-        $$S=\{2,4,5\}$$
-    \item $D$: Conjunto de todos os comprimentos do pedido.
-        $$D=\{7,10,11\}$$
-    \item $R$: Conjunto de todos os comprimentos residuais relevantes$^{(1)}$.
-        $$R=\{2,3,4,5,6,7,8,9\}$$
-
-\end{itemize}
-
-\subsection*{Parâmetros:}
-\begin{itemize}
-    \item $N_l$: Número de peças pedidas com o comprimento $l$ ($N_l = 0$ para $l \notin D$).
-    \item $c_l$: O custo de uma peça com comprimento padrão $l$ (para $l \in S$).
-\end{itemize}
-
-\subsection*{Variável de Decisão:}
-
-\begin{itemize}
-    \item $Y_{k,l}$: O número de peças do comprimento $k \in{S \cup R}$, divididas por um qualquer comprimento \textit{l}, pertencente ao conjunto de peças objetivo e inferior a \textit{k}.
-
-\end{itemize}
-
-\subsection*{Modelo:}
-
-O objetivo é minimizar os custos totais associados ao consumo líquido de comprimentos padrão. Portanto, o objetivo pode ser representado como:
-
-\[
-\text{Minimize} \quad Z = \sum_{l \in S} c_l * max\{0, \sum_{k \in C_l} y_{l,k} - \sum_{k \in B_l} y_{k+l,k}\}
-\]
-
-\subsection*{Restrições:}
-
-$Y_{k,l} \geq 0$ onde $k \in S \cup R, l \in D, l < k$
-
-\[
-\sum_{k \in A_l} (A_l y_{k,1} + B_l y_{k+1,k}) \geq \sum_{k \in C_l} (C_l y_{l,k} + N_l) \quad \text{para todo } \ l \in (D \cup R) \setminus S
-\]
-Onde:
-\begin{itemize}
-    \item $A_l$ = \{ $k \in (S \cup R)$ | $k > l$ \}
-    \item $B_l$ = \{ $k \in D | k+1 \in  (S \cup R)$ \} 
-    \item $C_l$ = \{ $k \in D |  k < l$ \}
-\end{itemize}
-
-
-\subsubsection*{Observações:}
-\begin{itemize}
-    \item As variáveis de decisão $y_{k,l}$ devem ser não negativas para todos os $k \in S \cup R$ e $l \in D$, ou seja, $y_{k,l} \geq 0$ para todos os $k$ e $l$.
-    \item As variáveis de decisão devem ser inteiras, uma vez que representam o número de peças.
-
-\end{itemize}
-
-
-
-(1) conjunto de todos os comprimentos residuais $l \in \mathbb{N}$ que não sejam menores que o menor comprimento de demanda $d_{\text{min}} \in D$ e que podem ser produzidos por um corte com um dos comprimentos padrão e de ordem $S$ e $D$ sendo fornecidos.
-
 
 % Isto é uma grande gambiarra, mas funciona para pôr a bibliografia como uma secção.
 \section{Bibliografia}
