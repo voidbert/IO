@@ -1,0 +1,11 @@
+name: Report formatting
+on: [ pull_request ]
+jobs:
+    format:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            # clang-format doesn't come with act's local images. This is just for testing, as
+            # scripts contain
+            - run: ./latexformat.sh
