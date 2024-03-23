@@ -108,7 +108,10 @@ aluno José Lopes, e dá origem aos seguintes dados:
 
 A soma dos comprimentos dos itens a empacotar é dada por:
 
-$$2 \times 13 + 4 \times 9 + 5 \times 5 = 87$$
+\begin{equation}
+    2 \times 13 + 4 \times 9 + 5 \times 5 = 87
+    \label{eq:items-sum}
+\end{equation}
 
 \section{Formulação do problema}
 
@@ -560,6 +563,122 @@ corte, este não é descrito em detalhe, pelo que é recomendada a leitura do ar
 
     \item Registar que todas as variáveis correspondentes a padrões de corte são inteiras.
 \end{enumerate}
+
+\section{Interpretação da solução ótima}
+
+Os valores das variáveis de decisão apresentados na secção acima podem ser associados a uma
+distribuição dos itens por contentores. Por observação dos valores das variáveis $m_l$, concluímos
+sobre o número de contentores de cada tipo utilizados:
+
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{c|c}
+            Capacidade & Contentores utilizados \\
+            \hline
+            11         & 3 \\
+            10         & 4 \\
+            7          & 2
+        \end{tabular}
+    \end{center}
+    \caption{Número de contentores de cada tipo utilizados na solução ótima do nosso problema.}
+\end{table}
+
+Com base nas variáveis de corte ($y_{k, l}$), podemos agora ir dividindo os comprimentos dos
+contentores, executando o número de "um-cortes"{} de cada tipo especificado pela solução. A
+distribuição de itens por contentores que deduzimos é a seguinte:
+
+\bgroup
+\renewcommand{\arraystretch}{0}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{tabular}{p{1cm}p{1cm}p{1cm} p{0.5cm} p{1cm}p{1cm}p{1cm}p{1cm} p{0.5cm} p{1cm}p{1cm}}
+        \begin{tabular}{|>{\centering\arraybackslash}m{0.7cm}|}
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{1.25cm}5\vspace{1.25cm} \\
+            \hline \vspace{1cm}4\vspace{1cm} \\
+            \hline
+        \end{tabular} &
+        \begin{tabular}{|>{\centering\arraybackslash}m{0.7cm}|}
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{1.25cm}5\vspace{1.25cm} \\
+            \hline \vspace{1cm}4\vspace{1cm} \\
+            \hline
+        \end{tabular} &
+        \begin{tabular}{|>{\centering\arraybackslash}m{0.7cm}|}
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{1.25cm}5\vspace{1.25cm} \\
+            \hline \vspace{1cm}4\vspace{1cm} \\
+            \hline
+        \end{tabular} & &
+
+        \begin{tabular}{|>{\centering\arraybackslash}m{0.7cm}|}
+            \hline \vspace{1cm}4\vspace{1cm} \\
+            \hline \vspace{0.43cm}2\vspace{0.43cm} \\
+            \hline \vspace{0.43cm}2\vspace{0.43cm} \\
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline
+        \end{tabular} &
+        \begin{tabular}{|>{\centering\arraybackslash}m{0.7cm}|}
+            \hline \vspace{1cm}4\vspace{1cm} \\
+            \hline \vspace{0.43cm}2\vspace{0.43cm} \\
+            \hline \vspace{0.43cm}2\vspace{0.43cm} \\
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline
+        \end{tabular} &
+        \begin{tabular}{|>{\centering\arraybackslash}m{0.7cm}|}
+            \hline \vspace{1cm}4\vspace{1cm} \\
+            \hline \vspace{1cm}4\vspace{1cm} \\
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline
+        \end{tabular} &
+        \begin{tabular}{|>{\centering\arraybackslash}m{0.7cm}|}
+            \hline \vspace{1cm}4\vspace{1cm} \\
+            \hline \vspace{1cm}4\vspace{1cm} \\
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline
+        \end{tabular} & &
+
+        \begin{tabular}{|>{\centering\arraybackslash}m{0.7cm}|}
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{1.25cm}5\vspace{1.25cm} \\
+            \hline
+        \end{tabular} &
+        \begin{tabular}{|>{\centering\arraybackslash}m{0.7cm}|}
+            \hline \vspace{0.5cm}2\vspace{0.5cm} \\
+            \hline \vspace{1.25cm}5\vspace{1.25cm} \\
+            \hline
+        \end{tabular}
+    \end{tabular}
+
+    \caption{Uma distribuição possível dos itens pelos contentores na solução ótima.}
+\end{figure}
+\egroup
+
+O valor da função objetivo, correspondente à soma dos comprimentos dos contentores utilizados, é
+$87$.
+
+\section{Validação do modelo}
+
+Após o cálculo da solução ótima, procedemos à validação do modelo. O primeiro passo consiste em
+verificar se a interpretação real da solução obtida faz sentido, e não viola nenhum pressuposto que
+possa ter sido esquecido no modelo LP. Verifica-se que:
+
+\begin{itemize}
+    \item Todos os itens foram empacotados: 13 de comprimento 12, 9 de comprimento 4 e 5 de
+        comprimento 5;
+    \item Não foi ultrapassada a capacidade de nenhum dos contentores;
+    \item Não foram usados mais contentores do que os disponíveis: apenas 3 de capacidade 10, e 2 de
+        capacidade 7, números inferiores aos 5 contentores disponíveis para cada um destes tipos.
+\end{itemize}
+
+De seguida, verificamos se o nosso modelo não é demasiado restritivo, i.e., se não existem soluções
+melhores do que a atual, válidas no mundo real mas que não respeitam as restrições do modelo LP.
+Verificamos que a soma dos comprimentos dos itens (ver equação \ref{eq:items-sum}) é igual à soma
+das capacidades dos contentores utilizados, 87, pelo que a nossa solução não gera qualquer espaço
+livre, e consequentemente não existe melhor solução possível que não seja considerada pelo nosso
+modelo.
 
 \section{Conclusão}
 
