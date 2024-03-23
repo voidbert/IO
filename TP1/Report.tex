@@ -1,7 +1,8 @@
 \documentclass[12pt, a4paper, titlepage]{article}
 
-\usepackage{array}
+\usepackage{amsfonts}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{array}
 \usepackage[portuguese]{babel}
 \usepackage{cite}
@@ -13,7 +14,7 @@
 \usepackage{listings}
 \usepackage{lscape}
 \usepackage{setspace}
-\usepackage{xcolor}
+\usepackage[dvipsnames]{xcolor}
 
 \chardef\_=`_
 
@@ -69,7 +70,6 @@
     \emph{script} Python que automaticamente gera o código LP do modelo.
 \end{abstract}
 
-\setcounter{section}{-1}
 \section{Dados do problema}
 
 Como exigido pelo enunciado, os dados do problema a resolver são determinados em função do número de
@@ -223,12 +223,275 @@ problema de empacotamento, onde sobras de espaço em contentores não devem ser 
 função objetivo: para cada capacidade de contentor, considera-se o valor máximo entre zero e o custo
 dos contentores usados.
 
+\section{Modelo de "um-corte"{} para um problema genérico}
+
+\subsection{Parâmetros e notação utilizada}
+
+Antes de apresentar o modelo final adaptado ao nosso problema, apresentaremos a formulação
+matemática do modelo de "um-corte"{} para um caso geral, complementando a descrição meramente
+textual feita anteriormente. Alguns objetos matemáticos devem ser conhecidos antes da introdução da
+função objetivo e das restrições existentes. Será seguida a mesma notação do artigo que definiu este
+modelo. \cite{dyckhoff}
+
+\begin{itemize}
+    \item $S \subset \mathbb{\mathbb{Z}^+}$: conjunto dos comprimentos de \emph{stock}, no caso,
+        as capacidades dos contentores;
+    \item $D \subset \mathbb{\mathbb{Z}^+}$: conjunto dos comprimentos do pedido, no caso, os
+        comprimentos dos
+        itens;
+    \item $R \subset \mathbb{\mathbb{Z}^+}$: conjunto de resíduos relevantes, definidos como
+        comprimentos não inferiores ao menor dos itens, que podem ser obtidos através da aplicação
+        de "um-cortes"{} sucessivos a partir de $S$ e $D$.
+\end{itemize}
+
+Neste modelo, são também dados do problema os seguintes parâmetros:
+
+\begin{itemize}
+    \item $N_l \in \mathbb{Z}^+_0$, com $l \in (D \cup R) \setminus S$: número de itens a empacotar
+        com o comprimento $l$ (quando $l \not \in D$, $N_l = 0$);
+    \item $c_l \in \mathbb{R}$, com $l \in S$: custo de um contentor com comprimento $l$;
+    \item $d_l \in \mathbb{Z}^+ \cup \{ \infty \}$, com $l \in S$: disponibilidade de um contentor
+        de um dado tipo.
+\end{itemize}
+
+\subsection{Variáveis de decisão}
+
+Como já explicado, as variáveis de decisão principais deste problema são da forma $y_{k, l}$, e o
+seu valor representa o número de divisões de comprimentos $k$ em comprimentos menores, $l$ e
+$k - l$. Algumas regras triviais aplicam-se aos valores de $k$ e $l$:
+
+\begin{itemize}
+    \item O número de cortes é inteiro e não negativo: $y_{k, l} \in \mathbb{Z}^+_0$;
+    \item De um "um-corte"{} não podem resultar comprimentos maiores ou iguais do que o comprimento
+        cortado: $l < k$;
+    \item De qualquer "um-corte"{}, um dos comprimentos produzidos deve ser o comprimento de um
+        item: $l \in D$;
+    \item Apenas se podem dividir capacidades de contentores ou de comprimentos obtidos através de
+        "um-cortes"{} anteriores (resíduos): $k \in S \cup R$.
+\end{itemize}
+
+\subsection{Função objetivo}
+
+Na nossa extensão ao modelo de Dyckhoff, são necessárias outras variáveis de decisão para a
+linearização da função objetivo. Procura-se minimizar a soma dos custos dos contentores utilizados,
+assegurando-se que o número de usos de um dado contentor não é negativo:
+
+\begin{equation}
+    \text{min: } \sum_{l \in S} c_l \cdot \max \left \{ 0,
+        {\color{blue} \sum_{k \in C_l} y_{l,k}} -
+        {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}}
+    \right \}
+    \label{eq:objective}
+\end{equation}
+
+Na equação anterior, os conjuntos $B_l$ e $C_l$ assumem os seguintes valores:
+
+\begin{equation}
+    B_l = \left \{k \in D \mid k + l \in S \cup R \right \} \label{eq:Bl} \nonumber
+\end{equation}
+
+\begin{equation}
+    C_l = \left \{k \in D \mid k < l \right \} \label{eq:Cl} \nonumber
+\end{equation}
+
+Tendo em conta as definições de $B_l$ e $C_l$, conclui-se que o somatório a {\color{blue} azul}
+na função objetivo \eqref{eq:objective} representa o número de comprimentos $l$ consumidos, enquanto
+que o somatório a {\color{ForestGreen} verde} representa o número de comprimentos $l$ produzidos
+através de "um-cortes"{}.
+
+A linearização desta função objetivo é um processo simples: para cada $l \in S$, considera-se uma
+variável de decisão $m_l$, que representa o máximo entre $0$ e a diferença entre os somatórios.
+Sendo assim, $m_l$ será superior ou igual a ambos estes valores, e a minimização da soma de todos os
+$m_l$ conduzirá a que cada uma destas variáveis assuma exatamente um dos valores ($0$ ou a diferença
+entre somatórios), visto que a solução ótima estará na fronteira de um poliedro convexo:
+
+\begin{equation}
+    \begin{split}
+        \text{min: }      & \sum_{l \in S} c_l \cdot m_l \\
+        \forall_{l \in S} & \begin{cases}
+            m_l \geq 0, \\
+            m_l \geq \sum_{k \in C_l} y_{l,k} - \sum_{k \in B_l} y_{k + l, k}
+        \end{cases}
+    \end{split}
+    \label{eq:objective-expanded}
+\end{equation}
+
+\subsection{Restrições}
+
+Ao contrário das restrições anteriores, existentes apenas para ser possível uma representação linear
+do modelo, segue-se a apresentação das restrições impostas pelo contexto e dados do problema.
+
+\subsubsection{Restrições de equilíbrio}
+
+Estas restrições são definidas no artigo de Dyckhoff \cite{dyckhoff} e garantem dois aspetos:
+produz-se o número de espaços suficientes para empacotar os itens necessários, e não se consomem
+mais comprimentos em "um-cortes"{} do que os que são produzidos. Para cada comprimento desejado, ou
+resíduo que não igual à capacidade de um contentor ($l \in (D \cup R) \setminus S$), tem-se a
+seguinte restrição:
+
+\begin{equation}
+    {\color{red} \sum_{k \in A_l} y_{k, l}} +
+    {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}} -
+    {\color{blue} \sum_{k \in C_l} y_{l, k}} \geq N_l
+    \label{eq:balance-restriction}
+\end{equation}
+
+Os conjuntos $B_l$ e $C_l$ já foram definidos anteriormente, e a definição de $A_l$ segue-se abaixo:
+
+\begin{equation}
+    A_l =
+    \begin{cases}
+        \left \{ k \in S \cup R \mid k > l \right \}, & l \in D \\
+        \varnothing, & l \not \in D
+    \end{cases}
+    \nonumber
+\end{equation}
+
+Assim, os somatórios a {\color{red} vermelho} e {\color{ForestGreen} verde} representam o número de
+espaços gerados com comprimento $l$, enquanto que o somatório a {\color{blue} azul} representa o
+número desses espaços consumidos por "um-cortes"{} subsequentes. O balanço final de cortes não deve
+ser inferior a $0$, e nos casos em que há itens a empacotar, $N_l$.
+
+\subsubsection{Restrições de contentores}
+
+Devido à disponibilidade limitada de cada contentor, é necessário estabelecer restrições que
+garantam que o número de contentores usado de cada tipo (já calculado na função objetivo) não
+ultrapasse a sua disponibilidade. Para cada $l: d_l \not = \infty$, tem-se a seguinte restrição:
+
+\begin{equation}
+    {\color{blue} \sum_{k \in C_l} y_{l,k}} -
+    {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}} \leq d_l
+    \label{eq:container-restriction}
+\end{equation}
+
+Apesar de denominarmos estas restrições "de contentores"{}, tal foi feito apenas para as distinguir
+das do modelo original de Dyckhoff. No entanto, podemos provar que estas se tratam de meras
+restrições de equilíbrio que consideram $N_l = -d_l$ (não se pode ultrapassar um dado consumo de
+contentores):
+
+\begin{equation}
+    \begin{split}
+        \nonumber
+        {\color{blue} \sum_{k \in C_l} y_{l,k}} -
+        {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}} \leq d_l
+        & \Leftrightarrow \\
+        \nonumber
+        {\color{red} 0} +
+        {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}} -
+        {\color{blue} \sum_{k \in C_l} y_{l,k}} \geq - d_l
+        & \Leftrightarrow_{\color{red} A = \varnothing} \\
+        \nonumber
+        {\color{red} \sum_{k \in A_l} y_{k, l}} +
+        {\color{ForestGreen} \sum_{k \in B_l} y_{k + l, k}} -
+        {\color{blue} \sum_{k \in C_l} y_{l,k}} \geq - d_l & = N_l
+    \end{split}
+\end{equation}
+
+\section{Aplicação do modelo de "um-corte"{} ao nosso problema}
+
+Para os parâmetros do nosso problema, consideramos $S = \{ 7, 10, 11 \}$, as capacidades dos
+contentores, $D = \{ 2, 4, 5 \}$, os comprimentos dos itens, e $R = \{ 2, 3, 4, 5, 6, 7, 8, 9 \}$,
+os comprimentos dos resíduos úteis, calculados com base na aplicação de "um-cortes"{} sucessivos:
+
+\begin{equation}
+    \begin{split}
+        R_0           & \leftarrow  \varnothing \\
+        [11; 2]: R_1 & \leftarrow R_0 \cup \{ 2, 9 \} \\
+        [11; 4]: R_2 & \leftarrow R_1 \cup \{ 4, 7 \} \\
+        [11; 5]: R_3 & \leftarrow R_2 \cup \{ 5, 6 \} \\
+        [10; 2]: R_4 & \leftarrow R_3 \cup \{ 2, 8 \} \\
+                     & \hspace{3mm} \vdots \nonumber
+    \end{split} \nonumber
+\end{equation}
+
+Dado o número de itens de cada tipo a empacotar, $N_2 = 13$, $N_4 = 9$ e $N_5 = 5$. Ademais, com a
+disponibilidade de contentores de cada tipo, $d_7 = d_{10} = 5$ e $d_{11} = \infty$. Sabemos ainda
+que cada contentor tem um custo igual à sua capacidade, dado que procuramos minimizar a soma dos
+comprimentos dos contentores utilizados: $\forall_{l \in S}, c_l = l$.
+
+Antes da expansão das restrições, não sabemos quais serão as variáveis de decisão que estarão
+presentes no modelo final. No entanto, tendo já feito isso, tem-se:
+
+\begin{itemize}
+    \item Variáveis necessárias para a linearização da função objetivo ($m_l$ representa o número de
+        contentores usados de capacidade $l$): $m_7$, $m_{10}$, $m_{11}$ $\in \mathbb{Z}^+_0$
+    \item Variáveis de corte (com $y_{k, l}$ a representar o número de comprimentos $k$ divididos em
+        $l$ e $k - l$): $y_{11, 5}$, $y_{11, 4}$, $y_{11, 2}$, $y_{10,5}$, $y_{10,4}$, $y_{10, 2}$,
+        $y_{9, 2}$, $y_{7, 5}$, $y_{7, 4}$, $y_{8, 2}$, $y_{6, 4}$, $y_{5, 2}$, $y_{4, 2}$,
+        $y_{3, 2}$, $y_{8, 5}$, $y_{9, 5}$, $y_{8, 4}$, $y_{5, 4}$, $y_{6, 5}$ $\in \mathbb{Z}^+_0$
+\end{itemize}
+
+A expansão da expressão em \eqref{eq:objective-expanded} resulta na seguinte função objetivo e
+restrições:
+
+\begin{equation}
+    \begin{split}
+        \text{min: }    & 11 m_{11} + 10 m_{10} + 7 m_7 \\
+        \text{Suj. a: } & m_{11} \geq   y_{11, 5} + y_{11, 4} + y_{11, 2} \\
+                        & m_{10} \geq   y_{10, 5} + y_{10, 4} + y_{10, 2} \\
+                        & m_7    \geq - y_{11, 4} - y_{9, 2}  + y_{7, 5} + y_{7, 4} \\
+    \end{split} \nonumber
+\end{equation}
+
+A expansão das restrições de equilíbrio em \eqref{eq:balance-restriction} resulta nas seguintes
+expressões:
+
+\begin{equation}
+    \begin{split}
+        y_{11, 2} + y_{10, 2} + y_{9, 2} + y_{8, 2} + y_{7, 5} + y_{6, 4} + y_{5, 2} + 2 y_{4, 2} +
+            y_{3, 2} & \geq 13 \\
+        y_{8, 5} + y_{7, 4} + y_{5, 2} - y_{3, 2} & \geq 0 \\
+        y_{11, 4} + y_{10, 4} + y_{9, 5} + 2 y_{8, 4} + y_{7, 4} + y_{6, 4} + y_{5, 4} - y_{4, 2}
+            & \geq 9 \\
+        y_{11, 5} + 2 y_{10, 5} + y_{9, 5} + y_{8, 5} + y_{7, 5} + y_{6, 5} - y_{5, 4} - y_{5, 2}
+            & \geq 5 \\
+        y_{11, 5} + y_{10, 4} + y_{8, 2} - y_{6, 5} - y_{6, 4} & \geq 0 \\
+        y_{10, 2} - y_{8, 5} - y_{8, 4} - y_{8, 2} & \geq 0 \\
+        y_{11, 2} - y_{9, 5} - y_{9, 2} & \geq 0
+    \end{split} \nonumber
+\end{equation}
+
+Ademais, as restrições relativas ao número máximo de contentores \eqref{eq:container-restriction}
+são expandidas para o seguinte:
+
+\begin{equation}
+    \begin{split}
+        y_{10, 5} + y_{10, 4} + y_{10, 2} & \leq 5 \\
+        - y_{11, 4} - y_{9, 2}  + y_{7, 5} + y_{7, 4} & \leq 5
+    \end{split}
+\end{equation}
+
+É de notar que omitimos as restrições do tipo $m_l, y_{k, l} \geq 0$, pois estas são asseguradas
+pelo tipo das variáveis (inteiros não negativos), tanto matematicamente como no \texttt{lpsolve}.
+Segue-se o nosso modelo completo:
+
+\begin{equation}
+    \begin{split}
+        \text{min: }    & 11 m_{11} + 10 m_{10} + 7 m_7 \\
+        \text{Suj. a: } & m_{11} \geq   y_{11, 5} + y_{11, 4} + y_{11, 2} \\
+                        & m_{10} \geq   y_{10, 5} + y_{10, 4} + y_{10, 2} \\
+                        & m_7    \geq - y_{11, 4} - y_{9, 2}  + y_{7, 5} + y_{7, 4} \\ \\
+                        & y_{11, 2} + y_{10, 2} + y_{9, 2} + y_{8, 2} + y_{7, 5} + y_{6, 4} +
+                          y_{5, 2} + 2 y_{4, 2} + y_{3, 2} \geq 13 \\
+                        & y_{8, 5} + y_{7, 4} + y_{5, 2} - y_{3, 2} \geq 0 \\
+                        & y_{11, 4} + y_{10, 4} + y_{9, 5} + 2 y_{8, 4} + y_{7, 4} + y_{6, 4} +
+                          y_{5, 4} - y_{4, 2} \geq 9 \\
+                        & y_{11, 5} + 2 y_{10, 5} + y_{9, 5} + y_{8, 5} + y_{7, 5} + y_{6, 5} -
+                          y_{5, 4} - y_{5, 2} \geq 5 \\
+                        & y_{11, 5} + y_{10, 4} + y_{8, 2} - y_{6, 5} - y_{6, 4} \geq 0 \\
+                        & y_{10, 2} - y_{8, 5} - y_{8, 4} - y_{8, 2} \geq 0 \\
+                        & y_{11, 2} - y_{9, 5} - y_{9, 2} \geq 0 \\ \\
+                        & y_{10, 5} + y_{10, 4} + y_{10, 2} \leq 5 \\
+                        & - y_{11, 4} - y_{9, 2}  + y_{7, 5} + y_{7, 4} \leq 5 \\ \\
+                        & y_{l, k}, m_l \in \mathbb{Z}_0^+
+    \end{split} \nonumber
+\end{equation}
+
 \section{Ficheiro de entrada do lpsolve}
 \lstinputlisting[language=c, breaklines=true]{dyckhoff.lp}
 
 \section{Ficheiro de saída do lpsolve}
 \lstinputlisting{dyckhoff.out}
-
 
 \section{Metaprogramação}
 
@@ -245,22 +508,20 @@ geram o modelo LP automaticamente.
 O nosso \emph{script} para a implementação deste modelo encontra-se em anexo (ver
 \ref{code:one-cut}) e o seu funcionamento passo a passo é descrito abaixo.
 
-% TODO - citar fórmulas do modelo matemático neste relatório
-
 \begin{enumerate}[\hspace{1cm} \bfseries 1.]
     \item Calcular o conjunto de resíduos ($R$), sucessivamente executando todos os cortes possíveis
         com base nas capacidades dos contentores e nos comprimentos dos itens.
 
     \item Gerar a função objetivo, em particular, a variação que não diminui o custo de uma solução
         caso tenham sobrado espaços com comprimentos no conjunto das capacidades dos contentores
-        (isto apenas faz sentido em problemas de corte). É necessária a geração de variáveis e
-        restrições auxiliares para se calcular o máximo entre $0$ e o custo dos contentores gastos.
+        (ver equação \ref{eq:objective-expanded}).
 
-    \item Gerar as restrições de equilíbrio, calculando os conjuntos e os sumatórios descritos no
-        artigo.
+    \item Gerar as restrições de equilíbrio, calculando os conjuntos e os sumatórios descritos em
+        \eqref{eq:balance-restriction}.
 
     \item Gerar restrições a afirmar que o número de contentores de um dado tipo utilizados não pode
-        ser superior à disponibilidade dessa capacidade de contentor.
+        ser superior à disponibilidade dessa capacidade de contentor (ver equação
+        \ref{eq:container-restriction}).
 
     \item Restringir todas as variáveis de corte a valores inteiros.
 \end{enumerate}
