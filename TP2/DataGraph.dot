@@ -9,10 +9,10 @@ graph {
     // Fake nodes as labels (can't manually position labels)
     60[pos="0,0.4!"    penwidth="0"]
     90[pos="1.5,1.4!" penwidth="0"]
-    𝐎 [pos="1.5,-1.4!"  penwidth="0"]
+    𝐃 [pos="1.5,-1.4!"  penwidth="0"]
     50[pos="3.5,1.4!" penwidth="0"]
     20[pos="3.5,-1.4!"  penwidth="0"]
-    𝐃 [pos="5,0.4!"    penwidth="0"]
+    𝐎 [pos="5,0.4!"    penwidth="0"]
 
     1 -- 2 -- 4 -- 6
     1 -- 3 -- 5 -- 6
