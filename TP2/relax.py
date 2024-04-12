@@ -77,8 +77,25 @@ def relax_to_graph(lines: list[str]) -> Graph:
 
     return (vertices, edges)
 
-def graph_to_lp(g: Graph) -> str:
-    return ''
+def graph_to_lp(graph: Graph) -> str:
+    vertices, edges = graph
+
+    objective = 'min: ' + ' + '.join([ f'{c}x{o}_{d}' for ((o, d), (c, _)) in edges.items() ]) + ';'
+
+    flow_restrictions = []
+    for v, f in vertices.items():
+        in_edges  = [ o for (o, d) in edges if d == v ]
+        out_edges = [ d for (o, d) in edges if o == v ]
+        if len(in_edges) + len(out_edges) == 0:
+            continue
+        flow_restrictions.append(' '.join([ f'- x{o}_{v}' for o in in_edges ]) + \
+                                 ' '.join([ f'+ x{v}_{d}' for d in out_edges ]) + f' = {f};')
+
+    flow = '\n'.join(flow_restrictions)
+    maxflow = '\n'.join([ f'x{o}_{d} <= {c};' for ((o, d), (_, c)) in edges.items() ])
+    integer = 'int ' + ', '.join([ f'x{o}_{d}' for (o, d) in edges ]) + ';'
+
+    return '\n'.join([objective, '', flow, '', maxflow, '', integer])
 
 def main():
     """ Entry point to the script """
@@ -91,7 +108,7 @@ def main():
             break
 
     try:
-        print(relax_to_graph(lines))
+        print(graph_to_lp(relax_to_graph(lines)))
     except ValueError as e:
         print(str(e), file=stderr)
 
