@@ -39,11 +39,15 @@ def relax_to_graph(lines: list[str]) -> Graph:
 
         try:
             origin = int(values[0])
+            if origin not in range(1, vertex_count + 1):
+                raise IndexError()
         except (ValueError, IndexError) as e:
             raise ValueError(f'Failed to parse origin in edge {i + 1} (line {i + 3})') from e
 
         try:
             destination = int(values[1])
+            if destination not in range(1, vertex_count + 1):
+                raise IndexError()
         except (ValueError, IndexError) as e:
             raise ValueError(f'Failed to parse destination in edge {i + 1} (line {i + 3})') from e
 
@@ -87,11 +91,9 @@ def main():
             break
 
     try:
-        print(generate_graph(lines))
+        print(relax_to_graph(lines))
     except ValueError as e:
         print(str(e), file=stderr)
-
-    print(generate_graph())
 
 if __name__ == '__main__':
     main()
