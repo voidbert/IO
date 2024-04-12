@@ -11,7 +11,8 @@
 # You should have received a copy of the GNU General Public License along with this program. If not,
 # see <https://www.gnu.org/licenses/>.
 
-from sys import stderr
+from subprocess import run, PIPE
+from sys import argv, stderr
 
 Graph = tuple[dict[int, int], dict[tuple[int, int], tuple[int, int]]]
 """ A graph (vertices (number -> flow), edges (origin, destination -> cost, capacity)). """
@@ -100,17 +101,46 @@ def graph_to_lp(graph: Graph) -> str:
 def main():
     """ Entry point to the script """
 
-    lines = []
-    while True:
-        try:
-            lines.append(input())
-        except EOFError:
-            break
+    def lines_from_file(file: str) -> list[str]:
+        if file == '-':
+            lines = []
+            while True:
+                try:
+                    lines.append(input())
+                except EOFError:
+                    break
+            return lines
+        else:
+            with open(file) as f:
+                return f.readlines()
+
+    if len(argv) == 1:
+        dry = False
+        lines = lines_from_file('-')
+    elif len(argv) == 2:
+        if argv[1] == '--dry-run':
+            dry = True
+            lines = lines_from_file('-')
+        else:
+            dry = False
+            lines = lines_from_file(argv[1])
+    elif len(argv) == 3 and argv[1] == '--dry-run':
+        dry = True
+        lines = lines_from_file(argv[2])
+    else:
+        print('Usage: ./relax.py [--dry-run] [file]', file=stderr)
+        return
 
     try:
-        print(graph_to_lp(relax_to_graph(lines)))
+        lp = graph_to_lp(relax_to_graph(lines))
     except ValueError as e:
         print(str(e), file=stderr)
+        return
+
+    if dry:
+        print(lp)
+    else:
+        run(['lp_solve'], input=str.encode(lp))
 
 if __name__ == '__main__':
     main()
