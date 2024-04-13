@@ -15,3 +15,6 @@ __pycache__/
 !/TP1/Requirements.pdf
 !/TP1/Report.pdf
 !/TP2/Requirements.pdf
+
+# Compiled images
+TP2/resgraph/*

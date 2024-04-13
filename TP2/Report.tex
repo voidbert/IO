@@ -1,0 +1,78 @@
+\documentclass[12pt, a4paper, titlepage]{article}
+
+\usepackage[portuguese]{babel}
+\usepackage{float}
+\usepackage[a4paper, margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{setspace}
+
+\chardef\_=`_
+
+\title{\textbf{
+    Investigação Operacional -- Trabalho Prático II  \\
+    \large Problema de Fluxo Máximo numa Rede
+}}
+\author{
+    \begin{tabular}{ll}
+        Ana Carolina Penha Cerqueira       & A104188 \\
+        Humberto Gil Azevedo Sampaio Gomes & A104348 \\
+        Ivo Filipe Mendes Vieira           & A103999 \\
+        José António Fernandes Alves Lopes & A104541 \\
+        José Rodrigo Ferreira Matos        & A100612 \\
+    \end{tabular}
+}
+\date{4 de maio de 2024}
+
+\begin{document}
+
+\immediate\write18{mkdir -p resgraph && neato -Tpng DataGraph.dot > resgraph/DataGraph.png}
+
+\onehalfspacing
+\setlength{\parskip}{\baselineskip}
+\setlength{\parindent}{0pt}
+\def\arraystretch{1.5}
+
+\maketitle
+
+\begin{abstract}
+    % TODO - fazer abstrato
+\end{abstract}
+
+\section{Dados do problema}
+
+Como exigido pelo enunciado, os dados do problema a resolver são determinados em função do número de
+aluno mais elevado de entre os integrantes do grupo. No caso, este é A104541, que corresponde ao
+aluno José Lopes, e dá origem aos seguintes dados:
+
+\begin{center}
+    \begin{tabular}{rl}
+        Vértice de origem:  & $O = 6$ \\
+        Vértice de destino: & $D = 3$
+    \end{tabular}
+\end{center}
+
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{c|c}
+            Vértice & Capacidade \\
+            \hline
+            1 & 60        \\
+            2 & 90        \\
+            3 & $+\infty$ \\
+            4 & 50        \\
+            5 & 20        \\
+            6 & $+\infty$
+        \end{tabular}
+    \end{center}
+    \caption{Capacidade de cada vértice no grafo.}
+    \label{vertices-capacities}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{resgraph/DataGraph.png}
+    \caption{Gráfico no qual deve ser resolvido o problema.}
+    \label{data-graph}
+\end{figure}
+
+\end{document}
