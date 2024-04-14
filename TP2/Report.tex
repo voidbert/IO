@@ -49,6 +49,13 @@
 \immediate\write18{neato -Tpng graphs/3ConversionMinCost.dot > graphs/3ConversionMinCost.png}
 \immediate\write18{neato -Tpng graphs/4ConversionInt.dot > graphs/4ConversionInt.png}
 
+\immediate\write18{neato -Tpng graphs/1InterpretationOriginal.dot >
+    graphs/1InterpretationOriginal.png}
+\immediate\write18{neato -Tpng graphs/2InterpretationNames.dot > graphs/2InterpretationNames.png}
+\immediate\write18{neato -Tpng graphs/3InterpretationAux.dot > graphs/3InterpretationAux.png}
+\immediate\write18{neato -Tpng graphs/4InterpretationVertices.dot >
+    graphs/4InterpretationVertices.png}
+
 \onehalfspacing
 \setlength{\parskip}{\baselineskip}
 \setlength{\parindent}{0pt}
@@ -183,7 +190,70 @@ Foram removidos os comentários do ficheiro de saída que segue.
 
 \section{Interpretação da solução}
 
-% TODO
+A solução dada pelo RELAX4 na secção anterior contem informação sobre o fluxo máximo e sobre o fluxo
+em cada arco. Da primeira linha do \emph{output}, \texttt{s -70}, pode concluir-se que o fluxo
+máximo entre os vértices 6 e 3 é de 70 unidades. O valor $-70$ corresponde ao custo do transporte
+do fluxo por todos os arcos. No entanto, como todos os arcos têm custo nulo com exceção do arco
+$(3, 6)$, de custo $-1$, este é o único que contribui para o valor da função objetivo. Como
+explicado anteriormente, todo o fluxo que passa pelo resto do grafo passa também por este arco, pelo
+que o fluxo máximo do grafo é 70, o quociente entre $-70$ e o custo do arco $(3, 6)$, $-1$.
+
+De seguida, apesar da solução do RELAX4 conter o valor do fluxo em cada arco, estes arcos são os do
+grafo transformado e não os do grafo original. Para se obterem valores relativos ao grafo original,
+será necessário desfazer, passo a passo, a transformação feita anteriormente, tendo em conta o fluxo
+em cada arco. Em primeiro lugar, apresenta-se o grafo descrito pela solução do RELAX4, onde a cada
+arco está associado o seu fluxo. Por exemplo, a linha \texttt{f 3 4 50} indica um fluxo de 50
+unidades no arco oridentado $(3, 4)$. Note-se que arcos sem fluxo (fluxo nulo) não são apresentados
+na figura abaixo, e que alguns vértices foram reposicionados para evitar que os arcos representados
+se cruzassem.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{graphs/1InterpretationOriginal.png}
+    \caption{Grafo descrito pelo \emph{output} do RELAX4.}
+    \label{1interpretation-graph}
+\end{figure}
+
+O primeiro passo da transformação inversa é a substituição dos números atribuídos aos vértices pelos
+seus nomes anteriores, cujo resultado pode ser visto na figura abaixo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{graphs/2InterpretationNames.png}
+    \caption{Grafo após o primeiro passo da transformação inversa.}
+    \label{2interpretation-graph}
+\end{figure}
+
+De seguida, remove-se o arco $(3, 6)$, inserido entre os vértices de destino e origem para auxiliar
+a resolução do problema. Fazendo isto, o balanço dos vértices 3 e 6 logicamente muda, dando origem
+ao seguinte grafo:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{graphs/3InterpretationAux.png}
+    \caption{Grafo após o segundo passo da transformação inversa.}
+    \label{3interpretation-graph}
+\end{figure}
+
+O passo seguinte consiste em reverter a transformação da emulação da capacidade de vértices
+utilizando arcos: cada par de vértices $n_e$ e $n_s$ é transformado no vértice único $n$. Na imagem
+abaixo, o resultado deste passo da transformação inversa, incluiu-se já o fluxo em cada vértice (o
+fluxo no arco entre $n_e$ e $n_s$) comparado com a capacidade de $n$, algo que será útil para a
+validação do modelo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{graphs/4InterpretationVertices.png}
+    \caption{Grafo após o terceiro passo da transformação inversa.}
+    \label{4interpretation-graph}
+\end{figure}
+
+No sentido direto de transformação, os arcos não orientados dão origem a arcos orientados. No
+entanto, neste sentido inverso, não é necessário desfazer esse passo da transformação, dado que o
+fluxo entre dois vértices ocorre obrigatoriamente num dado sentido. O grafo anterior refere-se então
+à solução do problema interpretada no grafo original: o fluxo máximo entre os vértices 6 e 3 é de 70
+unidades, sendo que o fluxo é de 50 unidades nos arcos $(6, 4)$, $(4, 2)$ e $(2, 3)$, e de 20
+unidades em $(6, 5)$ e $(5, 3)$. Não há fluxo no vértice 1.
 
 % Isto é uma grande gambiarra, mas funciona para pôr a bibliografia como uma secção.
 \section{Bibliografia}
