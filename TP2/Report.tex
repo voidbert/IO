@@ -107,7 +107,7 @@ aluno José Lopes, e dá origem aos seguintes dados:
 \pagebreak
 \section{Formulação do problema}
 
-% TODO - definir problema
+% TODO - definir problema (com exemplo de sistema real)
 
 Para se utilizar o \emph{solver} RELAX-IV \cite{relax} de modo a se encontrar a solução ótima do
 modelo, este precisa de ser adaptado para se ter um problema que possa ser dado diretamente ao
@@ -255,6 +255,32 @@ fluxo entre dois vértices ocorre obrigatoriamente num dado sentido. O grafo ant
 unidades, sendo que o fluxo é de 50 unidades nos arcos $(6, 4)$, $(4, 2)$ e $(2, 3)$, e de 20
 unidades em $(6, 5)$ e $(5, 3)$. Não há fluxo no vértice 1.
 
+\section{Validação do modelo}
+
+Após o cálculo da solução ótima, procedemos à validação do modelo. O primeiro passo consiste em
+verificar se a interpretação real da solução obtida faz sentido, e não viola nenhuma condição que
+deva ser cumprida mas que possa não ter sido bem representada na construção do ficheiro de entrada
+do RELAX-IV. Verifica-se que:
+
+\begin{itemize}
+    \item O fluxo num dado vértice nunca é superior à sua capacidade, o fluxo máximo que este
+        comporta;
+    \item Em nenhum nodo que não a origem e o destino se verifica um balanço não nulo (nunca se
+        "ganha"{} ou "perde"{} fluxo);
+    \item Todo o fluxo que entra na rede em 6 sai em 3 (consequência do ponto anterior).
+\end{itemize}
+
+% TODO - falar em sistema real quando se decidir que exemplo usar
+
+Verifica-se também, sem grande dificuldade, que o valor da função objetivo 70 é ótimo. Todo o fluxo
+em 6, de modo a chegar ao vértice 3, deve passar primeiro por um dos seguintes vértices: 4, de
+capacidade 50, ou 5, de capacidade 20. A soma das capacidades destes dois vértices é 70, pelo que é
+impossível que saiam mais do que 70 unidades de fluxo de 6, mostrando que a solução descoberta é
+ótima. Caso esta demonstração não fosse tão trivial, a maximização do fluxo poderia ser feita com
+recurso a um modelo de programação linear, algo que não seria problemático em termos de desempenho
+devido às pequenas dimensões do grafo. Se o valor da função objetivo na solução ótima determinada
+através deste método fosse diferente, algum erro tinha sido cometido na adaptação do problema para o
+\emph{solver} RELAX-IV.
 
 % Isto é uma grande gambiarra, mas funciona para pôr a bibliografia como uma secção.
 \section{Bibliografia}
