@@ -109,11 +109,11 @@ aluno José Lopes, e dá origem aos seguintes dados:
 
 % TODO - definir problema
 
-Para se utilizar o \emph{solver} RELAX4 \cite{relax} de modo a se encontrar a solução ótima do
+Para se utilizar o \emph{solver} RELAX-IV \cite{relax} de modo a se encontrar a solução ótima do
 modelo, este precisa de ser adaptado para se ter um problema que possa ser dado diretamente ao
 \emph{solver}, no caso, um problema de fluxo de custo mínimo numa rede com capacidades em arcos.
 Para esta conversão, o grafo original (figura \ref{data-graph}) terá de sofrer alterações, dando
-origem a um outro grafo que será providenciado ao RELAX4. Este apresentará uma solução que terá
+origem a um outro grafo que será providenciado ao RELAX-IV. Este apresentará uma solução que terá
 depois de ser interpretada no grafo original.
 
 O primeiro passo na transformação é a geração de um grafo orientado, onde cada arco $\{i, j\}$ no
@@ -166,13 +166,13 @@ Segue-se o resultado deste passo da transformação.
 \end{figure}
 
 O último passo da transformação é uma simples adaptação dos nomes dos vértices e das capacidades dos
-arcos para que estes sejam suportados pelo \emph{solver} RELAX4. Em primeiro lugar, todos os nomes
-de vértices devem ser convertidos para números naturais, dado que o RELAX4 não suporta vértices com
-nomes textuais. De seguida, as capacidades infinitas devem ser convertidas para um valor inteiro
+arcos para que estes sejam suportados pelo \emph{solver} RELAX-IV. Em primeiro lugar, todos os nomes
+de vértices devem ser convertidos para números naturais, dado que o RELAX-IV não suporta vértices
+com nomes textuais. De seguida, as capacidades infinitas devem ser convertidas para um valor inteiro
 muito grande, consideravelmente superior às restantes capacidades. No caso, utilizámos o valor 1000
 para a representação de capacidades infinitas. Segue-se o grafo que deve ser convertido para um
-ficheiro de entrada do RELAX4, onde cada arco é caracterizado por um par contendo, por esta ordem, o
-custo unitário do arco e a sua capacidade.
+ficheiro de entrada do RELAX-IV, onde cada arco é caracterizado por um par contendo, por esta ordem,
+o custo unitário do arco e a sua capacidade.
 
 \begin{figure}[H]
     \centering
@@ -181,36 +181,36 @@ custo unitário do arco e a sua capacidade.
     \label{4conversion-graph}
 \end{figure}
 
-\section{Ficheiro de entrada do RELAX4}
+\section{Ficheiro de entrada do RELAX-IV}
 \lstinputlisting[language={}]{relax4.inp}
 
-\section{Ficheiro de saída do RELAX4}
+\section{Ficheiro de saída do RELAX-IV}
 Foram removidos os comentários do ficheiro de saída que segue.
 \lstinputlisting{relax4.out}
 
 \section{Interpretação da solução}
 
-A solução dada pelo RELAX4 na secção anterior contem informação sobre o fluxo máximo e sobre o fluxo
-em cada arco. Da primeira linha do \emph{output}, \texttt{s -70}, pode concluir-se que o fluxo
+A solução dada pelo RELAX-IV na secção anterior contem informação sobre o fluxo máximo e sobre o
+fluxo em cada arco. Da primeira linha do \emph{output}, \texttt{s -70}, pode concluir-se que o fluxo
 máximo entre os vértices 6 e 3 é de 70 unidades. O valor $-70$ corresponde ao custo do transporte
 do fluxo por todos os arcos. No entanto, como todos os arcos têm custo nulo com exceção do arco
 $(3, 6)$, de custo $-1$, este é o único que contribui para o valor da função objetivo. Como
 explicado anteriormente, todo o fluxo que passa pelo resto do grafo passa também por este arco, pelo
 que o fluxo máximo do grafo é 70, o quociente entre $-70$ e o custo do arco $(3, 6)$, $-1$.
 
-De seguida, apesar da solução do RELAX4 conter o valor do fluxo em cada arco, estes arcos são os do
-grafo transformado e não os do grafo original. Para se obterem valores relativos ao grafo original,
-será necessário desfazer, passo a passo, a transformação feita anteriormente, tendo em conta o fluxo
-em cada arco. Em primeiro lugar, apresenta-se o grafo descrito pela solução do RELAX4, onde a cada
-arco está associado o seu fluxo. Por exemplo, a linha \texttt{f 3 4 50} indica um fluxo de 50
-unidades no arco oridentado $(3, 4)$. Note-se que arcos sem fluxo (fluxo nulo) não são apresentados
-na figura abaixo, e que alguns vértices foram reposicionados para evitar que os arcos representados
-se cruzassem.
+De seguida, apesar da solução do RELAX-IV conter o valor do fluxo em cada arco, estes arcos são os
+do grafo transformado e não os do grafo original. Para se obterem valores relativos ao grafo
+original, será necessário desfazer, passo a passo, a transformação feita anteriormente, tendo em
+conta o fluxo em cada arco. Em primeiro lugar, apresenta-se o grafo descrito pela solução do
+RELAX-IV, onde a cada arco está associado o seu fluxo. Por exemplo, a linha \texttt{f 3 4 50} indica
+um fluxo de 50 unidades no arco oridentado $(3, 4)$. Note-se que arcos sem fluxo (fluxo nulo) não
+são apresentados na figura abaixo, e que alguns vértices foram reposicionados para evitar que os
+arcos representados se cruzassem.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{graphs/1InterpretationOriginal.png}
-    \caption{Grafo descrito pelo \emph{output} do RELAX4.}
+    \caption{Grafo descrito pelo \emph{output} do RELAX-IV.}
     \label{1interpretation-graph}
 \end{figure}
 
@@ -254,6 +254,7 @@ fluxo entre dois vértices ocorre obrigatoriamente num dado sentido. O grafo ant
 à solução do problema interpretada no grafo original: o fluxo máximo entre os vértices 6 e 3 é de 70
 unidades, sendo que o fluxo é de 50 unidades nos arcos $(6, 4)$, $(4, 2)$ e $(2, 3)$, e de 20
 unidades em $(6, 5)$ e $(5, 3)$. Não há fluxo no vértice 1.
+
 
 % Isto é uma grande gambiarra, mas funciona para pôr a bibliografia como uma secção.
 \section{Bibliografia}
