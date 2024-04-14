@@ -1,0 +1,38 @@
+digraph {
+    "1ₑ"[pos="0,-0.5!"]
+    "1ₛ"[pos="0,0.5!"]
+    "2ₑ"[pos="1.5,1.5!"]
+    "2ₛ"[pos="3,1.5!"]
+    3   [pos="2.25,-1.5!"]
+    "4ₑ"[pos="5.5,1.5!"]
+    "4ₛ"[pos="7,1.5!"]
+    "5ₑ"[pos="5.5,-1.5!"]
+    "5ₛ"[pos="7,-1.5!"]
+    6   [pos="8.5,0!"]
+
+    "1ₑ" -> "1ₛ" [taillabel="60 "]
+    "2ₑ" -> "2ₛ" [label="90"]
+    "4ₑ" -> "4ₛ" [label="50"]
+    "5ₑ" -> "5ₛ" [label="20 "]
+
+    "1ₛ" -> { "2ₑ", 3 }
+
+    "2ₛ" -> { "1ₑ", 3, "4ₑ" }
+
+    3 -> { "1ₑ", "2ₑ", "5ₑ" }
+
+    "4ₛ" -> fake1 -> fake2 [dir=none]
+    fake2 -> "2ₑ"
+    fake1[label="" width=0.01 height=0.01 shape=none pos="7,2.25!"]
+    fake2[label="" width=0.01 height=0.01 shape=none pos="1.5,2.25!"]
+    "4ₛ" -> {"5ₑ", 6}
+
+    "5ₛ" -> fake3 -> fake4 [dir=none]
+    fake4 -> 3
+    fake3[label="" width=0.01 height=0.01 shape=none pos="7,-2.25!"]
+    fake4[label="" width=0.01 height=0.01 shape=none pos="2.25,-2.25!"]
+    "5ₛ" -> {"4ₑ", 6}
+
+    6 -> {"4ₑ", "5ₑ"}
+    6 -> 3 [label="c = -1" penwidth=3.0]
+}

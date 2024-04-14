@@ -17,4 +17,4 @@ __pycache__/
 !/TP2/Requirements.pdf
 
 # Compiled images
-TP2/resgraph/*
+TP2/graphs/*.png
