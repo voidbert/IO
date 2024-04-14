@@ -141,12 +141,12 @@ transformação.
 O passo seguinte trata-se da transformação do problema de fluxo máximo num de fluxo de custo mínimo.
 Para tal, considera-se que todos os arcos no grafo anterior têm custo unitário 0. Como o
 \emph{solver} procura minimizar o custo e o nosso objetivo é maximizar o fluxo, adiciona-se um arco
-entre o destino e a origem, no caso $(6, 3)$, com custo $-1$ \cite{book}. Para tentar minimizar o
+entre o destino e a origem, no caso $(3, 6)$, com custo $-1$ \cite{book}. Para tentar minimizar o
 custo, o \emph{solver} procurará maximizar o fluxo neste arco, que pode aumentar até não ser
-possível aumentar o fluxo entre 3 e 6, calculando-se assim o fluxo máximo. O balanço em cada vértice
+possível aumentar o fluxo entre 6 e 3, calculando-se assim o fluxo máximo. O balanço em cada vértice
 é 0, dado que se pretende formar um grafo cíclico onde nenhum fluxo entra ou sai da rede. Mesmo
 assim, é possível a existência de fluxo no grafo: o fluxo gerado na origem voltará a este vértice
-pelo arco $(3, 6)$, pelo que o balanço na origem será nulo mesmo que haja fluxo no restante grafo.
+pelo arco $(6, 3)$, pelo que o balanço na origem será nulo mesmo que haja fluxo no restante grafo.
 Segue-se o resultado deste passo da transformação.
 
 \begin{figure}[H]
@@ -163,9 +163,9 @@ arcos para que estes sejam suportados pelo \emph{solver} RELAX4. Em primeiro lug
 de vértices devem ser convertidos para números naturais, dado que o RELAX4 não suporta vértices com
 nomes textuais. De seguida, as capacidades infinitas devem ser convertidas para um valor inteiro
 muito grande, consideravelmente superior às restantes capacidades. No caso, utilizámos o valor 1000
-para a representação de capacidades infinitas. Segue-se o grafo a ser convertido para um ficheiro de
-entrada do RELAX4, onde cada arco é caracterizado por um par contendo, por esta ordem, o custo
-unitário do arco e a sua capacidade.
+para a representação de capacidades infinitas. Segue-se o grafo que deve ser convertido para um
+ficheiro de entrada do RELAX4, onde cada arco é caracterizado por um par contendo, por esta ordem, o
+custo unitário do arco e a sua capacidade.
 
 \begin{figure}[H]
     \centering
