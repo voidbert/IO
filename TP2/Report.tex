@@ -1,9 +1,13 @@
 \documentclass[12pt, a4paper, titlepage]{article}
 
 \usepackage[portuguese]{babel}
+\usepackage{caption}
+\usepackage{cite}
 \usepackage{float}
 \usepackage[a4paper, margin=2cm]{geometry}
 \usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
 \usepackage{setspace}
 
 \chardef\_=`_
@@ -23,9 +27,34 @@
 }
 \date{4 de maio de 2024}
 
+\lstdefinestyle{codestyle}{
+   basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=false,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+}
+\lstset{style=codestyle}
+
+\captionsetup{font=onehalfspacing}
+
 \begin{document}
 
-\immediate\write18{mkdir -p resgraph && neato -Tpng DataGraph.dot > resgraph/DataGraph.png}
+\immediate\write18{neato -Tpng graphs/DataGraph.dot > graphs/DataGraph.png}
+\immediate\write18{neato -Tpng graphs/1ConversionDirected.dot > graphs/1ConversionDirected.png}
+\immediate\write18{neato -Tpng graphs/2ConversionCapacities.dot > graphs/2ConversionCapacities.png}
+\immediate\write18{neato -Tpng graphs/3ConversionMinCost.dot > graphs/3ConversionMinCost.png}
+\immediate\write18{neato -Tpng graphs/4ConversionInt.dot > graphs/4ConversionInt.png}
+
+\immediate\write18{neato -Tpng graphs/1InterpretationOriginal.dot >
+    graphs/1InterpretationOriginal.png}
+\immediate\write18{neato -Tpng graphs/2InterpretationNames.dot > graphs/2InterpretationNames.png}
+\immediate\write18{neato -Tpng graphs/3InterpretationAux.dot > graphs/3InterpretationAux.png}
+\immediate\write18{neato -Tpng graphs/4InterpretationVertices.dot >
+    graphs/4InterpretationVertices.png}
 
 \onehalfspacing
 \setlength{\parskip}{\baselineskip}
@@ -70,9 +99,202 @@ aluno José Lopes, e dá origem aos seguintes dados:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{resgraph/DataGraph.png}
-    \caption{Gráfico no qual deve ser resolvido o problema.}
+    \includegraphics[width=0.5\textwidth]{graphs/DataGraph.png}
+    \caption{Grafo no qual deve ser resolvido o problema.}
     \label{data-graph}
 \end{figure}
+
+\pagebreak
+\section{Formulação do problema}
+
+% TODO - definir problema (com exemplo de sistema real)
+
+Para se utilizar o \emph{solver} RELAX-IV \cite{relax} de modo a se encontrar a solução ótima do
+modelo, este precisa de ser adaptado para se ter um problema que possa ser dado diretamente ao
+\emph{solver}, no caso, um problema de fluxo de custo mínimo numa rede com capacidades em arcos.
+Para esta conversão, o grafo original (figura \ref{data-graph}) terá de sofrer alterações, dando
+origem a um outro grafo que será providenciado ao RELAX-IV. Este apresentará uma solução que terá
+depois de ser interpretada no grafo original.
+
+O primeiro passo na transformação é a geração de um grafo orientado, onde cada arco $\{i, j\}$ no
+grafo original dá origem aos dois arcos orientados $(i, j)$ e $(j, i)$. O resultado desta primeira
+transformação pode ser visto na figura abaixo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{graphs/1ConversionDirected.png}
+    \caption{Grafo após a aplicação do primeiro passo da transformação.}
+    \label{1conversion-graph}
+\end{figure}
+
+De seguida, as capacidade dos vértices no modelo original foram convertidas em capacidades de arcos.
+Cada vértice $n$ com uma capacidade não infinita (todos exceto a origem e o destino) foi
+transformado em dois vértices, $n_e$ e $n_s$, ligados pelo arco $(n_e, n_s)$, de capacidade igual à
+do vértice original. Todos os arcos do grafo anterior com destino em $n$ passam a ter destino em
+$n_e$, enquanto que os arcos com origem em $n$ passam a ter origem em $n_s$. Assim, todo o fluxo a
+passar pelo vértice original passa agora pelo arco de capacidade finita $(n_e, n_s)$, simulando a
+capacidade do vértice original. Todos os arcos do grafo original têm capacidade infinita, pelo que
+os restantes arcos do novo grafo também o terão. Segue-se o grafo resultante deste segundo passo da
+transformação.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{graphs/2ConversionCapacities.png}
+    \caption{Grafo após a aplicação do segundo passo da transformação. Arcos sem capacidade
+        definida têm, por omissão, capacidade infinita.}
+    \label{2conversion-graph}
+\end{figure}
+
+O passo seguinte trata-se da transformação do problema de fluxo máximo num de fluxo de custo mínimo.
+Para tal, considera-se que todos os arcos no grafo anterior têm custo unitário 0. Como o
+\emph{solver} procura minimizar o custo e o nosso objetivo é maximizar o fluxo, adiciona-se um arco
+entre o destino e a origem, no caso $(3, 6)$, com custo $-1$ \cite{book}. Para tentar minimizar o
+custo, o \emph{solver} procurará maximizar o fluxo neste arco, que pode aumentar até não ser
+possível aumentar o fluxo entre 6 e 3, calculando-se assim o fluxo máximo. O balanço em cada vértice
+é 0, dado que se pretende formar um grafo cíclico onde nenhum fluxo entra ou sai da rede. Mesmo
+assim, é possível a existência de fluxo no grafo: o fluxo gerado na origem voltará a este vértice
+pelo arco $(6, 3)$, pelo que o balanço na origem será nulo mesmo que haja fluxo no restante grafo.
+Segue-se o resultado deste passo da transformação.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{graphs/3ConversionMinCost.png}
+    \caption{ \onehalfspacing
+        Grafo após a aplicação do terceiro passo da transformação. Arcos sem custo definido (todos
+        exceto o destacado) têm, por omissão, custo nulo.}
+    \label{3conversion-graph}
+\end{figure}
+
+O último passo da transformação é uma simples adaptação dos nomes dos vértices e das capacidades dos
+arcos para que estes sejam suportados pelo \emph{solver} RELAX-IV. Em primeiro lugar, todos os nomes
+de vértices devem ser convertidos para números naturais, dado que o RELAX-IV não suporta vértices
+com nomes textuais. De seguida, as capacidades infinitas devem ser convertidas para um valor inteiro
+muito grande, consideravelmente superior às restantes capacidades. No caso, utilizámos o valor 1000
+para a representação de capacidades infinitas. Segue-se o grafo que deve ser convertido para um
+ficheiro de entrada do RELAX-IV, onde cada arco é caracterizado por um par contendo, por esta ordem,
+o custo unitário do arco e a sua capacidade.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{graphs/4ConversionInt.png}
+    \caption{Grafo após a transformação do problema.}
+    \label{4conversion-graph}
+\end{figure}
+
+\section{Ficheiro de entrada do RELAX-IV}
+\lstinputlisting[language={}]{relax4.inp}
+
+\section{Ficheiro de saída do RELAX-IV}
+Foram removidos os comentários do ficheiro de saída que segue.
+\lstinputlisting{relax4.out}
+
+\section{Interpretação da solução}
+
+A solução dada pelo RELAX-IV na secção anterior contem informação sobre o fluxo máximo e sobre o
+fluxo em cada arco. Da primeira linha do \emph{output}, \texttt{s -70}, pode concluir-se que o fluxo
+máximo entre os vértices 6 e 3 é de 70 unidades. O valor $-70$ corresponde ao custo do transporte
+do fluxo por todos os arcos. No entanto, como todos os arcos têm custo nulo com exceção do arco
+$(3, 6)$, de custo $-1$, este é o único que contribui para o valor da função objetivo. Como
+explicado anteriormente, todo o fluxo que passa pelo resto do grafo passa também por este arco, pelo
+que o fluxo máximo do grafo é 70, o quociente entre $-70$ e o custo do arco $(3, 6)$, $-1$.
+
+De seguida, apesar da solução do RELAX-IV conter o valor do fluxo em cada arco, estes arcos são os
+do grafo transformado e não os do grafo original. Para se obterem valores relativos ao grafo
+original, será necessário desfazer, passo a passo, a transformação feita anteriormente, tendo em
+conta o fluxo em cada arco. Em primeiro lugar, apresenta-se o grafo descrito pela solução do
+RELAX-IV, onde a cada arco está associado o seu fluxo. Por exemplo, a linha \texttt{f 3 4 50} indica
+um fluxo de 50 unidades no arco oridentado $(3, 4)$. Note-se que arcos sem fluxo (fluxo nulo) não
+são apresentados na figura abaixo, e que alguns vértices foram reposicionados para evitar que os
+arcos representados se cruzassem.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{graphs/1InterpretationOriginal.png}
+    \caption{Grafo descrito pelo \emph{output} do RELAX-IV.}
+    \label{1interpretation-graph}
+\end{figure}
+
+O primeiro passo da transformação inversa é a substituição dos números atribuídos aos vértices pelos
+seus nomes anteriores, cujo resultado pode ser visto na figura abaixo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{graphs/2InterpretationNames.png}
+    \caption{Grafo após o primeiro passo da transformação inversa.}
+    \label{2interpretation-graph}
+\end{figure}
+
+De seguida, remove-se o arco $(3, 6)$, inserido entre os vértices de destino e origem para auxiliar
+a resolução do problema. Fazendo isto, o balanço dos vértices 3 e 6 logicamente muda, dando origem
+ao seguinte grafo:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{graphs/3InterpretationAux.png}
+    \caption{Grafo após o segundo passo da transformação inversa.}
+    \label{3interpretation-graph}
+\end{figure}
+
+O passo seguinte consiste em reverter a transformação da emulação da capacidade de vértices
+utilizando arcos: cada par de vértices $n_e$ e $n_s$ é transformado no vértice único $n$. Na imagem
+abaixo, o resultado deste passo da transformação inversa, incluiu-se já o fluxo em cada vértice (o
+fluxo no arco entre $n_e$ e $n_s$) comparado com a capacidade de $n$, algo que será útil para a
+validação do modelo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{graphs/4InterpretationVertices.png}
+    \caption{Grafo após o terceiro passo da transformação inversa.}
+    \label{4interpretation-graph}
+\end{figure}
+
+No sentido direto de transformação, os arcos não orientados dão origem a arcos orientados. No
+entanto, neste sentido inverso, não é necessário desfazer esse passo da transformação, dado que o
+fluxo entre dois vértices ocorre obrigatoriamente num dado sentido. O grafo anterior refere-se então
+à solução do problema interpretada no grafo original: o fluxo máximo entre os vértices 6 e 3 é de 70
+unidades, sendo que o fluxo é de 50 unidades nos arcos $(6, 4)$, $(4, 2)$ e $(2, 3)$, e de 20
+unidades em $(6, 5)$ e $(5, 3)$. Não há fluxo no vértice 1.
+
+\section{Validação do modelo}
+
+Após o cálculo da solução ótima, procedemos à validação do modelo. O primeiro passo consiste em
+verificar se a interpretação real da solução obtida faz sentido, e não viola nenhuma condição que
+deva ser cumprida mas que possa não ter sido bem representada na construção do ficheiro de entrada
+do RELAX-IV. Verifica-se que:
+
+\begin{itemize}
+    \item O fluxo num dado vértice nunca é superior à sua capacidade, o fluxo máximo que este
+        comporta;
+    \item Em nenhum nodo que não a origem e o destino se verifica um balanço não nulo (nunca se
+        "ganha"{} ou "perde"{} fluxo);
+    \item Todo o fluxo que entra na rede em 6 sai em 3 (consequência do ponto anterior).
+\end{itemize}
+
+% TODO - falar em sistema real quando se decidir que exemplo usar
+
+Verifica-se também, sem grande dificuldade, que o valor da função objetivo 70 é ótimo. Todo o fluxo
+em 6, de modo a chegar ao vértice 3, deve passar primeiro por um dos seguintes vértices: 4, de
+capacidade 50, ou 5, de capacidade 20. A soma das capacidades destes dois vértices é 70, pelo que é
+impossível que saiam mais do que 70 unidades de fluxo de 6, mostrando que a solução descoberta é
+ótima. Caso esta demonstração não fosse tão trivial, a maximização do fluxo poderia ser feita com
+recurso a um modelo de programação linear, algo que não seria problemático em termos de desempenho
+devido às pequenas dimensões do grafo. Se o valor da função objetivo na solução ótima determinada
+através deste método fosse diferente, algum erro tinha sido cometido na adaptação do problema para o
+\emph{solver} RELAX-IV.
+
+% Isto é uma grande gambiarra, mas funciona para pôr a bibliografia como uma secção.
+\section{Bibliografia}
+\def\refname{}
+\vspace{-1.5cm}
+\begin{thebibliography}{9}
+    \bibitem{relax}
+        D. P. Bertsekas and P. Tseng, "RELAX-IV : a faster version of the RELAX code for solving
+        minimum cost flow problems,"{} Massachusetts Institute of Technology, Cambridge, MA, USA,
+        1994. Accessed: Apr. 14, 2024. Available: \url{https://dspace.mit.edu/handle/1721.1/3392}
+    \bibitem{book}
+        R. K. Ahuja, T. L. Magnanti, J. B. Orlin, "Introduction,"{} in \emph{Network Flows: Theory,
+        Algorithms, and Applications}, 1st ed. Upper Saddle River, NJ, USA: Prentice-Hall, Inc.,
+        1993, ch. 1, sec. 2, pp. 4--9.
+\end{thebibliography}
 
 \end{document}

@@ -1,0 +1,49 @@
+digraph {
+    edge [fontsize=10]
+
+    1[pos="0,-0.5!"]
+    2[pos="0,0.5!"]
+    3[pos="1.5,1.5!"]
+    4[pos="3,1.5!"]
+    5[pos="2.25,-1.5!"]
+    6[pos="5.5,1.5!"]
+    7[pos="7,1.5!"]
+    8[pos="5.5,-1.5!"]
+    9[pos="7,-1.5!"]
+    10[pos="8.5,0!"]
+
+    1 -> 2 [taillabel="(0, 60) "]
+    3 -> 4 [taillabel="(0, 90)" ]
+    6 -> 7 [taillabel="(0, 50)" ]
+    8 -> 9 [taillabel="(0, 20)" labeldistance=2]
+
+    2 -> 3 [label="(0, 1000)"   ]
+    2 -> 5 [label="   (0, 1000)"]
+
+    4 -> {1, 5} [label="(0, 1000)"]
+    4 -> 6 [taillabel=" (0, 1000)"]
+
+    5 -> 8 [headlabel="(0, 1000)     "]
+    5 -> 1 [taillabel="(0, 1000)          "]
+    5 -> 3 [label="(0, 1000) "]
+    5 -> 10 [label="(-1, 1000)"]
+
+    7     -> fake1 [dir=none]
+    fake1 -> fake2 [dir=none label="(0, 1000)"]
+    fake2 -> 3
+    fake1[label="" width=0.01 height=0.01 shape=none pos="7,2.25!"]
+    fake2[label="" width=0.01 height=0.01 shape=none pos="1.5,2.25!"]
+    7 -> 8  [headlabel="(0, 1000) "]
+    7 -> 10 [taillabel="    (0, 1000)"]
+
+    9     -> fake3 [dir=none]
+    fake3 -> fake4 [dir=none label="(0, 1000)"]
+    fake4 -> 5
+    fake3[label="" width=0.01 height=0.01 shape=none pos="7,-2.25!"]
+    fake4[label="" width=0.01 height=0.01 shape=none pos="2.25,-2.25!"]
+    9 -> 6  [headlabel="(0, 1000)            " labeldistance=2]
+    9 -> 10 [taillabel="     (0, 1000)"]
+
+    10 -> 6 [taillabel="(0, 1000)         "]
+    10 -> 8 [headlabel="    (0, 1000)" labeldistance=3]
+}
