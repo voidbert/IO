@@ -44,6 +44,7 @@
 \begin{document}
 
 \immediate\write18{neato -Tpng graphs/DataGraph.dot > graphs/DataGraph.png}
+\immediate\write18{neato -Tpng graphs/ExampleGraph.dot > graphs/ExampleGraph.png}
 \immediate\write18{neato -Tpng graphs/1ConversionDirected.dot > graphs/1ConversionDirected.png}
 \immediate\write18{neato -Tpng graphs/2ConversionCapacities.dot > graphs/2ConversionCapacities.png}
 \immediate\write18{neato -Tpng graphs/3ConversionMinCost.dot > graphs/3ConversionMinCost.png}
@@ -107,7 +108,78 @@ aluno José Lopes, e dá origem aos seguintes dados:
 \pagebreak
 \section{Formulação do problema}
 
-% TODO - definir problema (com exemplo de sistema real)
+\subsection{Conceitos introdutórios}
+
+O problema a resolver tem por base uma rede de fluxos, objeto constituído por um grafo e por dados
+adicionais para cada arco (como capacidades e custos unitários) e / ou para cada arco (como
+capacidades e ofertas / consumos). Antes de se definirem estes conceitos, é necessário ter-se em
+mente o conceito de fluxo, algo que é transferido entre os vértices do grafo através dos seus arcos.
+Este "algo"{} depende do contexto do problema e do que a rede significa. Julgamos que um exemplo
+seja mais ilustrativo:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{graphs/ExampleGraph.png}
+    \caption{Interpretação de uma rede de fluxos como uma rede hídrica interurbana.}
+    \label{example-graph}
+\end{figure}
+
+A rede acima pode ser interpretada como uma rede de canalizações, onde vértices correspondem a
+cidades e os arcos às tubagens entre as várias cidades. Neste exemplo, o fluxo será a água
+transportada entre as cidades. Nos tipos de problema abordados neste documento, as decisões serão
+sempre a escolha da quantidade de fluxo em cada arco da rede, neste caso, a água transferida por
+cada tubagem existente. Como será visto posteriormente, em vez de haver preocupações com o sentido
+do fluxo nas tubagens bidirecionais, cada uma destas será transformada em duas tubagens
+unidirecionais, cada uma associada a uma variável de decisão.
+
+Com o conceito de fluxo apresentado, podem definir-se propriedades de vértices e de arcos, como as
+capacidades. A capacidade de um vértice é o fluxo máximo que pode entrar nesse vértice. No exemplo
+anterior, refere-se à capacidade máxima de água que pode entrar numa rede hídrica interna de uma
+cidade. A rede interna de Braga, por exemplo, não suporta mais de 60 unidades de volume de água de
+entrada. Apesar do exemplo anterior não ter capacidades em arcos, este conceito é crucial para a
+expressão de qualquer problema na sua forma padrão. Simplesmente, é o limite superior de fluxo num
+arco, algo que no contexto da rede hídrica significaria o volume máximo de água que se poderia
+transferir por uma tubagem entre duas cidades.
+
+O conceito de custo unitário é simples e será necessário para a transformação do problema
+apresentado num que o \emph{solver} utilizado é capaz de resolver: o custo unitário de um arco é o
+custo associado ao transporte de uma unidade de fluxo por um arco, que no contexto da rede de
+tubagens se refere ao custo monetário da transferência de uma unidade de volume de água entre duas
+cidades por uma dada tubagem.
+
+O último conceito a introduzir é o de oferta / consumo. Um dado vértice pode produzir fluxo que será
+transportado pelo resto da rede (oferta), como pode consumir fluxo que recebe do resto da rede
+(consumo). No exemplo dado, estes conceitos estão associados aos excesso e défice de produção de
+água de cada cidade, respetivamente.
+
+Qualquer problema de fluxo em rede tem dois tipos de restrição associados. O primeiro são as
+restrições de capacidade: logicamente, para todo o arco, o fluxo nunca pode ser negativo ou superior
+à capacidade. Note-se que capacidades de vértices devem ser transformadas em capacidades de arcos,
+como se verá posteriormente. O segundo tipo de restrição são as restrições de conservação de fluxo:
+em cada vértice, o balanço do (diferença entre o) fluxo de saída e o fluxo de entrada num vértice
+deve ser igual à oferta (valor positivo) / procura (valor negativo). No exemplo dado, estas
+restrições traduzem-se na impossibilidade de fazer aparecer ou desaparecer água.
+
+% TODO - apresentação da coerência glocal do modelo a construir?
+
+O problema que se pretende resolver é um de maximização de fluxo. Dados dois vértices numa rede,
+procura-se determinar o fluxo máximo entre esses dois vértices, respeitando as restrições
+mencionadas anteriormente. No exemplo da figura \ref{example-graph}, pretende-se enviar o volume
+máximo de água possível entre Coimbra (origem) e Porto (destino), seja por que caminho for. Note-se
+que o custo dos arcos é irrelevante para a resolução do problema: pretende-se maximizar o fluxo
+independentemente do custo que isso acarrete.
+
+Como será visto posteriormente, o problema de fluxo máximo apresentado será resolvido após ser
+convertido para um problema de minimização de custo. Nestes problemas procura-se minimizar o custo
+de transporte de fluxo (de água) entre vértices (cidades) com balanço positivo (oferta) e os
+vértices com balanço negativo (consumo), respeitando as condições de capacidade e conservação de
+fluxo mencionadas.
+
+\subsection{Formulação matemática}
+
+% TODO
+
+\subsection{Construção do modelo}
 
 Para se utilizar o \emph{solver} RELAX-IV \cite{relax} de modo a se encontrar a solução ótima do
 modelo, este precisa de ser adaptado para se ter um problema que possa ser dado diretamente ao
