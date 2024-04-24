@@ -1,5 +1,7 @@
 \documentclass[12pt, a4paper, titlepage]{article}
 
+\usepackage{amsfonts}
+\usepackage{amsmath}
 \usepackage[portuguese]{babel}
 \usepackage{caption}
 \usepackage{cite}
@@ -185,7 +187,92 @@ fluxo mencionadas.
 
 \subsection{Formulação matemática}
 
-% TODO
+Antes de se proceder à resolução do problema apresentado, é necessária uma definição formal e
+rigorosa dos conceitos de redes de fluxo. A partir deste ponto neste documento, apenas será
+considerada a rede da figura \ref{data-graph}, sem o contexto de rede hídrica interurbana associado,
+que apenas será reintroduzido para a interpretação da solução final no mundo real.
+
+Uma rede de fluxo é formada por um grafo orientado $G = (V, A)$, onde $V$ é o conjunto de vértices e
+$A \subseteq V^2$ o conjunto de arcos. Adicionalmente, a cada vértice $i \in V$ pode estar associada
+uma oferta / consumo $b_i$ (ofertas apresentam valores positivos, e procuras valores negativos). A
+cada arco $(i, j) \in A$ pode estar associada uma capacidade $u_{i j}$ e um custo unitário
+$c_{i j}$. Note-se que esta definição de rede de fluxos não suporta diretamente conceitos como
+capacidades em vértices ou arcos não orientados. Como será visto na secção seguinte, estes serão
+convertidos de modo a se ter uma rede na sua forma padrão.
+
+Como já mencionado, as decisões tomadas nos problemas em redes de fluxo são as escolhas das
+quantidades de fluxo em cada arco. Logo, a cada arco $(i, j) \in V$ será associada uma variável de
+decisão $x_{i j} \in \mathbb{Z}_0^+$, que representa o número de unidades de fluxo que passam por
+esse arco.
+
+Em qualquer problema estão presentes restrições de capacidade: o fluxo em cada arco deve ser
+não-negativo e não deve ultrapassar a capacidade desse arco. Matematicamente, têm-se as seguintes
+restrições:
+
+\begin{equation}
+    \label{restriction-capacity}
+    \forall_{(i, j) \in A}, \hspace{1mm} 0 \le x_{i j} \le u_{i j}
+\end{equation}
+
+Além disso, as restrições de conservação de fluxo devem ser respeitadas. Para cada vértice, a
+diferença entre todo o fluxo de saída e todo o fluxo de entrada deve ser igual à oferta / consumo
+nesse arco. O fluxo de saída é facilmente calculável através da soma dos fluxos de todas as arestas
+que têm origem no vértice. O mesmo se tem para o fluxo de entrada e as arestas com destino no
+vértice em questão. Assim, matematicamente, têm-se as seguintes restrições:
+
+% TODO - double check
+\begin{equation}
+    \label{restriction-flow}
+    \forall_{i \in V}, \hspace{1mm} \sum_{(i, j) \in A} x_{i j} - \sum_{(j, i) \in A} x_{j i} = b_i
+\end{equation}
+
+Num problema de maximização de fluxo, considera-se uma variável $f$ que representa o fluxo entre
+o vértice de origem $O$ e o vértice de destino $D$. Trivialmente, o objetivo será $max: f$. Um
+modelo para este problema, estará sujeito às restrições de capacidade (equação
+\ref{restriction-capacity}) e às restrições de conservação de fluxo (equação
+\ref{restriction-flow}). No entanto, surge a questão de quais são os valores de oferta / procura em
+cada vértice. O que ocorre neste problema é que os valores em $O$ e $D$ deixam de ser dados do
+problema e passam a ser dependentes da variável $f$. É necessário garantir que o balanço de fluxo em
+$O$ corresponde a uma oferta de $f$ unidades ($b_O = f$) e que em $D$ corresponde a um consumo de
+$f$ unidades ($b_D = -f$). Não se deseja que os restantes vértices ofereçam ou consumam fluxo
+($b_i = 0$, $i \not \in \{O, D\}$). Assim, pode formular-se o seguinte modelo de programação linear:
+
+\begin{equation}
+    \label{model-maximum-flow}
+    \begin{split}
+        \text{max:}             & \hspace{2mm} f \\
+        \forall_{(i, j) \in A}, & \hspace{2mm} 0 \le x_{i j} \le u_{i j} \\
+        \forall_{i \in V},      & \hspace{2mm}
+            \sum_{(i, j) \in A} x_{i j} - \sum_{(j, i) \in A} x_{j i} =
+            \begin{cases}
+                f  & \Leftarrow i = O \\
+                0  & \Leftarrow i \in V \setminus \{O, D\} \\
+                -f & \Leftarrow i = D
+            \end{cases} \\
+        \forall_{(i, j) \in A}, & \hspace{2mm} x_{i j} \in \mathbb{Z}_0^+
+    \end{split}
+\end{equation}
+
+O modelo para a resolução de um problema de minimização de custo é mais simples. Apenas é necessário
+considerar que o custo total, o que se pretende minimizar, é igual à soma dos custos em todos os
+arcos, e o custo num arco é igual ao produto entre o fluxo nesse arco e o custo unitário desse arco
+(custo de transporte de uma unidade de fluxo). Assim, como não são necessárias modificações aos
+valores das ofertas e consumos dos vértices, um modelo de programação linear é trivial:
+
+\begin{equation}
+    \label{model-minimum-cost}
+    \begin{split}
+        \text{min:}             & \hspace{2mm} \sum_{(i, j) \in V} c_{i j} x_{i j} \\
+        \forall_{i \in V},      & \hspace{2mm}
+            \sum_{(i, j) \in A} x_{i j} - \sum_{(j, i) \in A} x_{j i} = b_i \\
+        \forall_{(i, j) \in A}, & \hspace{2mm} 0 \le x_{i j} \le u_{i j} \\
+        \forall_{(i, j) \in A}, & \hspace{2mm} x_{i j} \in \mathbb{Z}_0^+
+    \end{split}
+\end{equation}
+
+Ao contrário do que foi feito no trabalho prático anterior, estes modelos não serão resolvidos com
+um \emph{solver} de programação linear, mas são necessários para se apresentar definições formais
+dos problemas que se têm em mão.
 
 \subsection{Construção do modelo}
 
