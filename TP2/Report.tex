@@ -104,14 +104,14 @@ aluno José Lopes, e dá origem aos seguintes dados:
             6 & $+\infty$
         \end{tabular}
     \end{center}
-    \caption{Capacidade de cada vértice no grafo.}
+    \caption{Capacidade de cada vértice na rede.}
     \label{vertices-capacities}
 \end{table}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{graphs/DataGraph.png}
-    \caption{Grafo no qual deve ser resolvido o problema.}
+    \caption{Rede na qual deve ser resolvido o problema de maximização de fluxo.}
     \label{data-graph}
 \end{figure}
 
@@ -121,26 +121,26 @@ aluno José Lopes, e dá origem aos seguintes dados:
 \subsection{Conceitos introdutórios}
 
 O problema a resolver tem por base uma rede de fluxos, objeto constituído por um grafo e por dados
-adicionais para cada arco (como capacidades e custos unitários) e / ou para cada arco (como
+adicionais para cada arco (como capacidades e custos unitários) e / ou para cada vértice (como
 capacidades e ofertas / consumos). Antes de se definirem estes conceitos, é necessário ter-se em
-mente o conceito de fluxo, algo que é transferido entre os vértices do grafo através dos seus arcos.
+mente o conceito de fluxo, algo que é transferido entre os vértices da rede através dos seus arcos.
 Este "algo"{} depende do contexto do problema e do que a rede significa. Julgamos que um exemplo
 seja mais ilustrativo:
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{graphs/ExampleGraph.png}
-    \caption{Interpretação de uma rede de fluxos como uma rede hídrica interurbana.}
+    \caption{Interpretação da rede dada como uma rede hídrica interurbana.}
     \label{example-graph}
 \end{figure}
 
-A rede acima pode ser interpretada como uma rede de canalizações, onde vértices correspondem a
-cidades e os arcos às tubagens entre as várias cidades. Neste exemplo, o fluxo será a água
-transportada entre as cidades. Nos tipos de problema abordados neste documento, as decisões serão
-sempre a escolha da quantidade de fluxo em cada arco da rede, neste caso, a água transferida por
-cada tubagem existente. Como será visto posteriormente, em vez de haver preocupações com o sentido
-do fluxo nas tubagens bidirecionais, cada uma destas será transformada em duas tubagens
-unidirecionais, cada uma associada a uma variável de decisão.
+A rede da figura \ref{data-graph} pode ser interpretada como uma rede de canalizações, onde vértices
+correspondem a cidades e os arcos às tubagens entre as várias cidades. Neste exemplo, o fluxo será a
+água transportada entre as cidades. Nos tipos de problema abordados neste documento, as decisões
+serão sempre a escolha da quantidade de fluxo em cada arco da rede, neste caso, a água transferida
+por cada tubagem existente. Como será visto posteriormente, em vez de haver preocupações com o
+sentido do fluxo nas tubagens com dois sentidos, cada uma destas será transformada em duas tubagens
+direcionadas, cada uma associada a uma variável de decisão.
 
 Com o conceito de fluxo apresentado, podem definir-se propriedades de vértices e de arcos, como as
 capacidades. A capacidade de um vértice é o fluxo máximo que pode entrar nesse vértice. No exemplo
@@ -152,37 +152,39 @@ arco, algo que no contexto da rede hídrica significaria o volume máximo de ág
 transferir por uma tubagem entre duas cidades.
 
 O conceito de custo unitário é simples e será necessário para a transformação do problema
-apresentado num que o \emph{solver} utilizado é capaz de resolver: o custo unitário de um arco é o
-custo associado ao transporte de uma unidade de fluxo por um arco, que no contexto da rede de
+apresentado num que o \emph{solver} utilizado seja capaz de resolver: o custo unitário de um arco é
+o custo associado ao transporte de uma unidade de fluxo por esse arco, que no contexto da rede de
 tubagens se refere ao custo monetário da transferência de uma unidade de volume de água entre duas
 cidades por uma dada tubagem.
 
 O último conceito a introduzir é o de oferta / consumo. Um dado vértice pode produzir fluxo que será
 transportado pelo resto da rede (oferta), como pode consumir fluxo que recebe do resto da rede
-(consumo). No exemplo dado, estes conceitos estão associados aos excesso e défice de produção de
+(consumo). No exemplo dado, estes conceitos estão associados aos excesso e défice de produção em
 água de cada cidade, respetivamente.
 
 Qualquer problema de fluxo em rede tem dois tipos de restrição associados. O primeiro são as
 restrições de capacidade: logicamente, para todo o arco, o fluxo nunca pode ser negativo ou superior
-à capacidade. Note-se que capacidades de vértices devem ser transformadas em capacidades de arcos,
-como se verá posteriormente. O segundo tipo de restrição são as restrições de conservação de fluxo:
-em cada vértice, o balanço do (diferença entre o) fluxo de saída e o fluxo de entrada num vértice
-deve ser igual à oferta (valor positivo) / procura (valor negativo). No exemplo dado, estas
-restrições traduzem-se na impossibilidade de fazer aparecer ou desaparecer água.
+à capacidade. Note-se que, numa rede na sua forma padrão, capacidades de vértices devem ser
+transformadas em capacidades de arcos, como se verá posteriormente. O segundo tipo de restrição são
+as restrições de conservação de fluxo: em cada vértice, o balanço do (diferença entre o) fluxo de
+saída e o fluxo de entrada num vértice deve ser igual à oferta (valor positivo) / procura (valor
+negativo). No exemplo dado, estas restrições traduzem-se na impossibilidade de fazer aparecer ou
+desaparecer água além da produzida / consumida numa cidade.
 
 % TODO - apresentação da coerência glocal do modelo a construir?
 
 O problema que se pretende resolver é um de maximização de fluxo. Dados dois vértices numa rede,
 procura-se determinar o fluxo máximo entre esses dois vértices, respeitando as restrições
-mencionadas anteriormente. No exemplo da figura \ref{example-graph}, pretende-se enviar o volume
-máximo de água possível entre Coimbra (origem) e Porto (destino), seja por que caminho for. Note-se
-que o custo dos arcos é irrelevante para a resolução do problema: pretende-se maximizar o fluxo
-independentemente do custo que isso acarrete.
+mencionadas anteriormente. No exemplo da figura \ref{example-graph}, o problema proposto para a
+resolução neste trabalho prático, pretende-se enviar o volume máximo de água possível entre Coimbra
+(origem) e Porto (destino), seja por que caminho for. Note-se que o custo dos arcos é irrelevante
+para a resolução do problema: pretende-se maximizar o fluxo independentemente do custo que isso
+acarrete.
 
 Como será visto posteriormente, o problema de fluxo máximo apresentado será resolvido após ser
 convertido para um problema de minimização de custo. Nestes problemas procura-se minimizar o custo
 de transporte de fluxo (de água) entre vértices (cidades) com balanço positivo (oferta) e os
-vértices com balanço negativo (consumo), respeitando as condições de capacidade e conservação de
+vértices com balanço negativo (consumo), respeitando as restrições de capacidade e conservação de
 fluxo mencionadas.
 
 \subsection{Formulação matemática}
@@ -194,7 +196,7 @@ que apenas será reintroduzido para a interpretação da solução final no mund
 
 Uma rede de fluxo é formada por um grafo orientado $G = (V, A)$, onde $V$ é o conjunto de vértices e
 $A \subseteq V^2$ o conjunto de arcos. Adicionalmente, a cada vértice $i \in V$ pode estar associada
-uma oferta / consumo $b_i$ (ofertas apresentam valores positivos, e procuras valores negativos). A
+uma oferta / consumo $b_i$ (ofertas apresentam valores positivos, e consumos valores negativos). A
 cada arco $(i, j) \in A$ pode estar associada uma capacidade $u_{i j}$ e um custo unitário
 $c_{i j}$. Note-se que esta definição de rede de fluxos não suporta diretamente conceitos como
 capacidades em vértices ou arcos não orientados. Como será visto na secção seguinte, estes serão
@@ -216,8 +218,8 @@ restrições:
 
 Além disso, as restrições de conservação de fluxo devem ser respeitadas. Para cada vértice, a
 diferença entre todo o fluxo de saída e todo o fluxo de entrada deve ser igual à oferta / consumo
-nesse arco. O fluxo de saída é facilmente calculável através da soma dos fluxos de todas as arestas
-que têm origem no vértice. O mesmo se tem para o fluxo de entrada e as arestas com destino no
+nesse arco. O fluxo de saída é facilmente calculável através da soma dos fluxos de todos os arcos
+que têm origem no vértice. O mesmo se tem para o fluxo de entrada e os arcos com destino no
 vértice em questão. Assim, matematicamente, têm-se as seguintes restrições:
 
 % TODO - double check
@@ -228,12 +230,12 @@ vértice em questão. Assim, matematicamente, têm-se as seguintes restrições:
 
 Num problema de maximização de fluxo, considera-se uma variável $f$ que representa o fluxo entre
 o vértice de origem $O$ e o vértice de destino $D$. Trivialmente, o objetivo será $max: f$. Um
-modelo para este problema, estará sujeito às restrições de capacidade (equação
+modelo para este problema estará sujeito às restrições de capacidade (equação
 \ref{restriction-capacity}) e às restrições de conservação de fluxo (equação
 \ref{restriction-flow}). No entanto, surge a questão de quais são os valores de oferta / procura em
 cada vértice. O que ocorre neste problema é que os valores em $O$ e $D$ deixam de ser dados do
 problema e passam a ser dependentes da variável $f$. É necessário garantir que o balanço de fluxo em
-$O$ corresponde a uma oferta de $f$ unidades ($b_O = f$) e que em $D$ corresponde a um consumo de
+$O$ corresponde a uma oferta de $f$ unidades ($b_O = f$), e que em $D$ corresponde a um consumo de
 $f$ unidades ($b_D = -f$). Não se deseja que os restantes vértices ofereçam ou consumam fluxo
 ($b_i = 0$, $i \not \in \{O, D\}$). Assim, pode formular-se o seguinte modelo de programação linear:
 
@@ -257,7 +259,7 @@ O modelo para a resolução de um problema de minimização de custo é mais sim
 considerar que o custo total, o que se pretende minimizar, é igual à soma dos custos em todos os
 arcos, e o custo num arco é igual ao produto entre o fluxo nesse arco e o custo unitário desse arco
 (custo de transporte de uma unidade de fluxo). Assim, como não são necessárias modificações aos
-valores das ofertas e consumos dos vértices, um modelo de programação linear é trivial:
+valores das ofertas e consumos dos vértices, resultando num modelo de programação linear trivial:
 
 \begin{equation}
     \label{model-minimum-cost}
@@ -271,7 +273,7 @@ valores das ofertas e consumos dos vértices, um modelo de programação linear 
 \end{equation}
 
 Ao contrário do que foi feito no trabalho prático anterior, estes modelos não serão resolvidos com
-um \emph{solver} de programação linear, mas são necessários para se apresentar definições formais
+um \emph{solver} de programação linear, mas são necessários para se apresentarem definições formais
 dos problemas que se têm em mão.
 
 \subsection{Construção do modelo}
@@ -279,9 +281,9 @@ dos problemas que se têm em mão.
 Para se utilizar o \emph{solver} RELAX-IV \cite{relax} de modo a se encontrar a solução ótima do
 modelo, este precisa de ser adaptado para se ter um problema que possa ser dado diretamente ao
 \emph{solver}, no caso, um problema de fluxo de custo mínimo numa rede com capacidades em arcos.
-Para esta conversão, o grafo original (figura \ref{data-graph}) terá de sofrer alterações, dando
-origem a um outro grafo que será providenciado ao RELAX-IV. Este apresentará uma solução que terá
-depois de ser interpretada no grafo original.
+Para esta conversão, a rede original (figura \ref{data-graph}) terá de sofrer alterações, dando
+origem a uma outra rede que será providenciada ao RELAX-IV. Este apresentará uma solução que terá
+depois de ser interpretada na rede original.
 
 O primeiro passo na transformação é a geração de um grafo orientado, onde cada arco $\{i, j\}$ no
 grafo original dá origem aos dois arcos orientados $(i, j)$ e $(j, i)$. O resultado desta primeira
@@ -290,69 +292,78 @@ transformação pode ser visto na figura abaixo.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{graphs/1ConversionDirected.png}
-    \caption{Grafo após a aplicação do primeiro passo da transformação.}
+    \caption{Rede após a aplicação do primeiro passo da transformação.}
     \label{1conversion-graph}
 \end{figure}
 
 De seguida, as capacidade dos vértices no modelo original foram convertidas em capacidades de arcos.
 Cada vértice $n$ com uma capacidade não infinita (todos exceto a origem e o destino) foi
 transformado em dois vértices, $n_e$ e $n_s$, ligados pelo arco $(n_e, n_s)$, de capacidade igual à
-do vértice original. Todos os arcos do grafo anterior com destino em $n$ passam a ter destino em
+do vértice original. Todos os arcos da rede anterior com destino em $n$ passam a ter destino em
 $n_e$, enquanto que os arcos com origem em $n$ passam a ter origem em $n_s$. Assim, todo o fluxo a
 passar pelo vértice original passa agora pelo arco de capacidade finita $(n_e, n_s)$, simulando a
-capacidade do vértice original. Todos os arcos do grafo original têm capacidade infinita, pelo que
-os restantes arcos do novo grafo também o terão. Segue-se o grafo resultante deste segundo passo da
+capacidade do vértice original. Todos os arcos da rede original têm capacidade infinita, pelo que
+os restantes arcos da nova rede também o terão. Segue-se a rede resultante deste segundo passo da
 transformação.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{graphs/2ConversionCapacities.png}
-    \caption{Grafo após a aplicação do segundo passo da transformação. Arcos sem capacidade
-        definida têm, por omissão, capacidade infinita.}
+    \caption{\onehalfspacing
+        Rede após a aplicação do segundo passo da transformação. Arcos sem capacidade definida têm,
+        por omissão, capacidade infinita.}
     \label{2conversion-graph}
 \end{figure}
 
-O passo seguinte trata-se da transformação do problema de fluxo máximo num de fluxo de custo mínimo.
-Para tal, considera-se que todos os arcos no grafo anterior têm custo unitário 0. Como o
+O passo seguinte trata-se da transformação do problema de fluxo máximo num de minimização de custo.
+Para tal, considera-se que todos os arcos na rede anterior têm custo unitário 0. Como o
 \emph{solver} procura minimizar o custo e o nosso objetivo é maximizar o fluxo, adiciona-se um arco
 entre o destino e a origem, no caso $(3, 6)$, com custo $-1$ \cite{book}. Para tentar minimizar o
 custo, o \emph{solver} procurará maximizar o fluxo neste arco, que pode aumentar até não ser
-possível aumentar o fluxo entre 6 e 3, calculando-se assim o fluxo máximo. O balanço em cada vértice
-é 0, dado que se pretende formar um grafo cíclico onde nenhum fluxo entra ou sai da rede. Mesmo
-assim, é possível a existência de fluxo no grafo: o fluxo gerado na origem voltará a este vértice
-pelo arco $(6, 3)$, pelo que o balanço na origem será nulo mesmo que haja fluxo no restante grafo.
-Segue-se o resultado deste passo da transformação.
+possível aumentar o fluxo entre 6 e 3 através da restante rede, calculando-se assim o fluxo máximo.
+O balanço em cada vértice é 0, dado que se pretende formar um grafo cíclico onde nenhum fluxo entra
+ou sai da rede. Mesmo assim, é possível a existência de fluxo na rede: o fluxo gerado na origem
+voltará a este vértice pelo arco $(6, 3)$, pelo que o balanço na origem será nulo mesmo que haja
+fluxo na restante rede. Segue-se o resultado deste passo da transformação.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{graphs/3ConversionMinCost.png}
-    \caption{ \onehalfspacing
-        Grafo após a aplicação do terceiro passo da transformação. Arcos sem custo definido (todos
+    \caption{\onehalfspacing
+        Rede após a aplicação do terceiro passo da transformação. Arcos sem custo definido (todos
         exceto o destacado) têm, por omissão, custo nulo.}
     \label{3conversion-graph}
 \end{figure}
 
 O último passo da transformação é uma simples adaptação dos nomes dos vértices e das capacidades dos
 arcos para que estes sejam suportados pelo \emph{solver} RELAX-IV. Em primeiro lugar, todos os nomes
-de vértices devem ser convertidos para números naturais, dado que o RELAX-IV não suporta vértices
-com nomes textuais. De seguida, as capacidades infinitas devem ser convertidas para um valor inteiro
-muito grande, consideravelmente superior às restantes capacidades. No caso, utilizámos o valor 1000
-para a representação de capacidades infinitas. Segue-se o grafo que deve ser convertido para um
-ficheiro de entrada do RELAX-IV, onde cada arco é caracterizado por um par contendo, por esta ordem,
-o custo unitário do arco e a sua capacidade.
+de vértices devem ser convertidos para números naturais, dado que o \mbox{RELAX-IV} não suporta
+vértices com nomes textuais. De seguida, as capacidades infinitas devem ser convertidas para um
+valor inteiro muito grande, consideravelmente superior às restantes capacidades. No caso, utilizámos
+o valor 1000 para a representação de capacidades infinitas. Segue-se a rede que foi depois
+convertida para um ficheiro de entrada do RELAX-IV, onde cada arco é caracterizado pelo par
+$(c_{i j}, u_{i, j})$, ou seja, (custo, capacidade).
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{graphs/4ConversionInt.png}
-    \caption{Grafo após a transformação do problema.}
+    \caption{Rede após a transformação do problema.}
     \label{4conversion-graph}
 \end{figure}
 
 \section{Ficheiro de entrada do RELAX-IV}
+
+O ficheiro de entrada do RELAX-IV foi gerado a partir da rede transformada. A primeira linha contém
+o número de vértices, a segunda o número de arcos, segue-se uma linha para cada arco (com o vértice
+de origem, o destino, o custo unitário e a capacidade) e uma linha para cada vértice com a sua
+oferta / consumo. \\
+
 \lstinputlisting[language={}]{relax4.inp}
 
 \section{Ficheiro de saída do RELAX-IV}
-Foram removidos os comentários do ficheiro de saída que segue.
+
+Foram removidos os comentários do ficheiro de saída que segue. \\
+
 \lstinputlisting{relax4.out}
 
 \section{Interpretação da solução}
@@ -362,22 +373,22 @@ fluxo em cada arco. Da primeira linha do \emph{output}, \texttt{s -70}, pode con
 máximo entre os vértices 6 e 3 é de 70 unidades. O valor $-70$ corresponde ao custo do transporte
 do fluxo por todos os arcos. No entanto, como todos os arcos têm custo nulo com exceção do arco
 $(3, 6)$, de custo $-1$, este é o único que contribui para o valor da função objetivo. Como
-explicado anteriormente, todo o fluxo que passa pelo resto do grafo passa também por este arco, pelo
-que o fluxo máximo do grafo é 70, o quociente entre $-70$ e o custo do arco $(3, 6)$, $-1$.
+explicado anteriormente, todo o fluxo que passa pelo resto da rede passa também por este arco, pelo
+que o fluxo máximo entre 6 e 3 é 70, o quociente entre $-70$ e o custo do arco $(3, 6)$, $-1$.
 
 De seguida, apesar da solução do RELAX-IV conter o valor do fluxo em cada arco, estes arcos são os
-do grafo transformado e não os do grafo original. Para se obterem valores relativos ao grafo
-original, será necessário desfazer, passo a passo, a transformação feita anteriormente, tendo em
-conta o fluxo em cada arco. Em primeiro lugar, apresenta-se o grafo descrito pela solução do
-RELAX-IV, onde a cada arco está associado o seu fluxo. Por exemplo, a linha \texttt{f 3 4 50} indica
-um fluxo de 50 unidades no arco oridentado $(3, 4)$. Note-se que arcos sem fluxo (fluxo nulo) não
-são apresentados na figura abaixo, e que alguns vértices foram reposicionados para evitar que os
-arcos representados se cruzassem.
+da rede transformada e não os da rede original. Para se obterem valores relativos à rede original,
+será necessário desfazer, passo a passo, a transformação feita anteriormente, tendo em conta o fluxo
+em cada arco. Em primeiro lugar, apresenta-se a rede descrita pela solução do RELAX-IV, onde a cada
+arco está associado o seu fluxo. Por exemplo, a linha \texttt{f 3 4 50} indica um fluxo de 50
+unidades no arco oridentado $(3, 4)$. Note-se que arcos sem fluxo (fluxo nulo) não são apresentados
+na figura abaixo, e que alguns vértices foram reposicionados para evitar que os arcos representados
+se cruzassem.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{graphs/1InterpretationOriginal.png}
-    \caption{Grafo descrito pelo \emph{output} do RELAX-IV.}
+    \caption{Rede descrita pelo \emph{output} do RELAX-IV.}
     \label{1interpretation-graph}
 \end{figure}
 
@@ -387,18 +398,18 @@ seus nomes anteriores, cujo resultado pode ser visto na figura abaixo.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{graphs/2InterpretationNames.png}
-    \caption{Grafo após o primeiro passo da transformação inversa.}
+    \caption{Rede após o primeiro passo da transformação inversa.}
     \label{2interpretation-graph}
 \end{figure}
 
 De seguida, remove-se o arco $(3, 6)$, inserido entre os vértices de destino e origem para auxiliar
 a resolução do problema. Fazendo isto, o balanço dos vértices 3 e 6 logicamente muda, dando origem
-ao seguinte grafo:
+à seguinte rede:
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{graphs/3InterpretationAux.png}
-    \caption{Grafo após o segundo passo da transformação inversa.}
+    \caption{Rede após o segundo passo da transformação inversa.}
     \label{3interpretation-graph}
 \end{figure}
 
@@ -411,14 +422,14 @@ validação do modelo.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{graphs/4InterpretationVertices.png}
-    \caption{Grafo após o terceiro passo da transformação inversa.}
+    \caption{Rede após o terceiro passo da transformação inversa.}
     \label{4interpretation-graph}
 \end{figure}
 
 No sentido direto de transformação, os arcos não orientados dão origem a arcos orientados. No
 entanto, neste sentido inverso, não é necessário desfazer esse passo da transformação, dado que o
-fluxo entre dois vértices ocorre obrigatoriamente num dado sentido. O grafo anterior refere-se então
-à solução do problema interpretada no grafo original: o fluxo máximo entre os vértices 6 e 3 é de 70
+fluxo entre dois vértices ocorre obrigatoriamente num dado sentido. A figura anterior refere-se
+então à solução do problema na rede original: o fluxo máximo entre os vértices 6 e 3 é de 70
 unidades, sendo que o fluxo é de 50 unidades nos arcos $(6, 4)$, $(4, 2)$ e $(2, 3)$, e de 20
 unidades em $(6, 5)$ e $(5, 3)$. Não há fluxo no vértice 1.
 
@@ -443,25 +454,32 @@ do RELAX-IV. Verifica-se que:
 
 \begin{itemize}
     \item O fluxo num dado vértice nunca é superior à sua capacidade, o fluxo máximo que este
-        comporta;
-    \item Em nenhum nodo que não a origem e o destino se verifica um balanço não nulo (nunca se
-        "ganha"{} ou "perde"{} fluxo);
-    \item Todo o fluxo que entra na rede em 6 sai em 3 (consequência do ponto anterior).
+        comporta. Os vértices 4 e 5 estão no limite da sua capacidade (50 e 20 unidades,
+        respetivamente), enquanto que pelo vértice 2 apenas passam 50 das 90 unidades de fluxo para
+        que tem capacidade;
+    \item Em nenhum nodo que não a origem e o destino se verifica um balanço não nulo, i.e., nunca
+        se "ganha"{} ou "perde"{} fluxo (ver equação \ref{restriction-flow}). Por exemplo, no
+        vértice 2 entram 50 unidades pelo arco $(4, 2)$, que saem pela aresta $(2, 3)$, conduzindo
+        ao balanço nulo desejado;
+    \item Todo o fluxo que entra na rede em 6 (70 unidades) sai em 3 (consequência do ponto
+        anterior).
 \end{itemize}
 
 No exemplo dado, isto traduz-se na não ultrapassem das capacidades das redes hídricas internas das
 cidades e na ausência de ganhos e perdas de água quando o fluxo entre Coimbra e Porto passa por
-qualquer cidade.
+qualquer cidade, concluindo-se que a solução ótima encontrada faz sentido no contexto real proposto.
 
 Verifica-se também, sem grande dificuldade, que o valor da função objetivo 70 é ótimo. Todo o fluxo
 em 6, de modo a chegar ao vértice 3, deve passar primeiro por um dos seguintes vértices: 4, de
 capacidade 50, ou 5, de capacidade 20. A soma das capacidades destes dois vértices é 70, pelo que é
 impossível que saiam mais do que 70 unidades de fluxo de 6, mostrando que a solução descoberta é
-ótima. Caso esta demonstração não fosse tão trivial, a maximização do fluxo poderia ser feita com
-recurso a um modelo de programação linear, algo que não seria problemático em termos de desempenho
-devido às pequenas dimensões do grafo. Se o valor da função objetivo na solução ótima determinada
-através deste método fosse diferente, algum erro tinha sido cometido na adaptação do problema para o
-\emph{solver} RELAX-IV.
+ótima. Caso esta demonstração não fosse trivial, a maximização do fluxo poderia ser feita com
+recurso a um modelo de programação linear (equação \ref{model-maximum-flow}), algo que não seria
+problemático em termos de desempenho devido às pequenas dimensões da rede. Se o valor da função
+objetivo na solução ótima determinada através deste método fosse diferente, algum erro tinha sido
+cometido na adaptação do problema para o \emph{solver} RELAX-IV.
+
+Valida-se, assim, a correção do modelo.
 
 % Isto é uma grande gambiarra, mas funciona para pôr a bibliografia como uma secção.
 \section{Bibliografia}
