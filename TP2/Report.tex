@@ -56,6 +56,7 @@
 \immediate\write18{neato -Tpng graphs/3InterpretationAux.dot > graphs/3InterpretationAux.png}
 \immediate\write18{neato -Tpng graphs/4InterpretationVertices.dot >
     graphs/4InterpretationVertices.png}
+\immediate\write18{neato -Tpng graphs/ExampleSolved.dot > graphs/ExampleSolved.png}
 
 \onehalfspacing
 \setlength{\parskip}{\baselineskip}
@@ -327,6 +328,18 @@ fluxo entre dois vértices ocorre obrigatoriamente num dado sentido. O grafo ant
 unidades, sendo que o fluxo é de 50 unidades nos arcos $(6, 4)$, $(4, 2)$ e $(2, 3)$, e de 20
 unidades em $(6, 5)$ e $(5, 3)$. Não há fluxo no vértice 1.
 
+Pode agora interpretar-se esta solução no exemplo dado na figura \ref{example-graph}. Entre Coimbra
+e Porto, podem transferir-se no máximo 70 unidades de volume de água. 20 destas unidades seguem o
+caminho Coimbra -- Aveiro -- Porto, enquanto que as 50 restantes seguem o percurso Coimbra -- Viseu
+-- Vila Real -- Porto, como pode ser visto na figura \ref{example-solved} abaixo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{graphs/ExampleSolved.png}
+    \caption{Solução ótima vista na rede de exemplo.}
+    \label{example-solved}
+\end{figure}
+
 \section{Validação do modelo}
 
 Após o cálculo da solução ótima, procedemos à validação do modelo. O primeiro passo consiste em
@@ -342,7 +355,9 @@ do RELAX-IV. Verifica-se que:
     \item Todo o fluxo que entra na rede em 6 sai em 3 (consequência do ponto anterior).
 \end{itemize}
 
-% TODO - falar em sistema real quando se decidir que exemplo usar
+No exemplo dado, isto traduz-se na não ultrapassem das capacidades das redes hídricas internas das
+cidades e na ausência de ganhos e perdas de água quando o fluxo entre Coimbra e Porto passa por
+qualquer cidade.
 
 Verifica-se também, sem grande dificuldade, que o valor da função objetivo 70 é ótimo. Todo o fluxo
 em 6, de modo a chegar ao vértice 3, deve passar primeiro por um dos seguintes vértices: 4, de
