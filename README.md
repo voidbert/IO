@@ -16,4 +16,4 @@ A bin-packing problem using Dyckhoff's one-cut model.
 A flow network problem.
 
  - [Project requirements](TP2/Requirements.pdf);
- - Final report (to be added).
+ - [Final report](TP2/Report.pdf).
