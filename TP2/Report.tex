@@ -171,15 +171,15 @@ saída e o fluxo de entrada num vértice deve ser igual à oferta (valor positiv
 negativo). No exemplo dado, estas restrições traduzem-se na impossibilidade de fazer aparecer ou
 desaparecer água além da produzida / consumida numa cidade.
 
-% TODO - apresentação da coerência glocal do modelo a construir?
-
 O problema que se pretende resolver é um de maximização de fluxo. Dados dois vértices numa rede,
 procura-se determinar o fluxo máximo entre esses dois vértices, respeitando as restrições
 mencionadas anteriormente. No exemplo da figura \ref{example-graph}, o problema proposto para a
 resolução neste trabalho prático, pretende-se enviar o volume máximo de água possível entre Coimbra
 (origem) e Porto (destino), seja por que caminho for. Note-se que o custo dos arcos é irrelevante
 para a resolução do problema: pretende-se maximizar o fluxo independentemente do custo que isso
-acarrete.
+acarrete. O conjunto dos dois tipos de restrições mencionados garante que existe um fluxo máximo
+na rede e que este se conserva entre a origem o destino, garantido a possibilidade de formação de um
+modelo coerente.
 
 Como será visto posteriormente, o problema de fluxo máximo apresentado será resolvido após ser
 convertido para um problema de minimização de custo. Nestes problemas procura-se minimizar o custo
@@ -222,7 +222,6 @@ nesse arco. O fluxo de saída é facilmente calculável através da soma dos flu
 que têm origem no vértice. O mesmo se tem para o fluxo de entrada e os arcos com destino no
 vértice em questão. Assim, matematicamente, têm-se as seguintes restrições:
 
-% TODO - double check
 \begin{equation}
     \label{restriction-flow}
     \forall_{i \in V}, \hspace{1mm} \sum_{(i, j) \in A} x_{i j} - \sum_{(j, i) \in A} x_{j i} = b_i
@@ -335,6 +334,15 @@ fluxo na restante rede. Segue-se o resultado deste passo da transformação.
     \label{3conversion-graph}
 \end{figure}
 
+Uma forma alternativa de transformar o problema seria utilizar um vértice com uma oferta muito
+elevada, com um arco para o vértice de entrada da rede, 6. Outro arco teria origem no vértice de
+saída 3 para outro nó adicionado, com consumo igual à procura do vértice previamente adicionado.
+Por último, outro arco seria adicionado entre o primeiro e o segundo dos dois novos vértices. Todos
+os arcos adicionados têm capacidade infinita, e com exceção do arco entre os dois vértices
+adicionados, de custo 1, os arcos têm custo nulo. Deste modo, o \emph{solver} tentará enviar o
+máximo de fluxo pela rede entre os vértices desejados utilizando apenas o arco de custo superior
+após o fluxo máximo na rede original ser atingido.
+
 O último passo da transformação é uma simples adaptação dos nomes dos vértices e das capacidades dos
 arcos para que estes sejam suportados pelo \emph{solver} RELAX-IV. Em primeiro lugar, todos os nomes
 de vértices devem ser convertidos para números naturais, dado que o \mbox{RELAX-IV} não suporta
@@ -381,7 +389,7 @@ da rede transformada e não os da rede original. Para se obterem valores relativ
 será necessário desfazer, passo a passo, a transformação feita anteriormente, tendo em conta o fluxo
 em cada arco. Em primeiro lugar, apresenta-se a rede descrita pela solução do RELAX-IV, onde a cada
 arco está associado o seu fluxo. Por exemplo, a linha \texttt{f 3 4 50} indica um fluxo de 50
-unidades no arco oridentado $(3, 4)$. Note-se que arcos sem fluxo (fluxo nulo) não são apresentados
+unidades no arco orientado $(3, 4)$. Note-se que arcos sem fluxo (fluxo nulo) não são apresentados
 na figura abaixo, e que alguns vértices foram reposicionados para evitar que os arcos representados
 se cruzassem.
 
