@@ -11,9 +11,13 @@ A bin-packing problem using Dyckhoff's one-cut model.
    [one-cut model](TP1/dyckhoff.py);
  - [Final report](TP1/Report.pdf).
 
+**Grade** 100 / 100 ⭐
+
 ### TP2
 
 A flow network problem.
 
  - [Project requirements](TP2/Requirements.pdf);
  - [Final report](TP2/Report.pdf).
+
+**Grade** 100 / 100 ⭐
